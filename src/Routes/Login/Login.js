@@ -15,17 +15,19 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
 } from "firebase/auth";
+import { useNavigate, redirect } from "react-router-dom";
 import LayoutCentratoAlloSchermo from "../../Layouts/LayoutCentratoAlloSchermo";
 
 function Login() {
+  const navigate = useNavigate();
   const [credenziali, setCredenziali] = useState({
     email: "",
     password: "",
     ricordami: false,
   });
 
+  //funzione di autenticazione
   let autenticaUtente = () => {
-    console.log(credenziali);
     const auth = getAuth();
     if (credenziali.ricordami) {
       setPersistence(auth, browserLocalPersistence);
@@ -37,6 +39,7 @@ function Login() {
         // Signed in
         const user = userCredential.user;
         console.log(user);
+        navigate("/");
         // ...
       })
       .catch((error) => {
@@ -45,6 +48,7 @@ function Login() {
         console.log(error.message);
       });
   };
+
   return (
     <LayoutCentratoAlloSchermo>
       <View borderWidth="thin" borderColor="dark" borderRadius="medium">
