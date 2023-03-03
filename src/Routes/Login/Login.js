@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -7,10 +8,43 @@ import {
   TextField,
   View,
 } from "@adobe/react-spectrum";
-import React from "react";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 import LayoutCentratoAlloSchermo from "../../Layouts/LayoutCentratoAlloSchermo";
 
 function Login() {
+  const [credenziali, setCredenziali] = useState({
+    email: "",
+    password: "",
+    ricordami: false,
+  });
+
+  let autenticaUtente = () => {
+    console.log(credenziali);
+    const auth = getAuth();
+    if (credenziali.ricordami) {
+      setPersistence(auth, browserLocalPersistence);
+    } else {
+      setPersistence(auth, browserSessionPersistence);
+    }
+    signInWithEmailAndPassword(auth, credenziali.email, credenziali.password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(error.message);
+      });
+  };
   return (
     <LayoutCentratoAlloSchermo>
       <View borderWidth="thin" borderColor="dark" borderRadius="medium">
@@ -45,6 +79,8 @@ function Login() {
                   label="E-mail"
                   type="email"
                   width={"100%"}
+                  value={credenziali.email}
+                  onChange={(e) => setCredenziali({ ...credenziali, email: e })}
                 />
                 <TextField
                   isRequired
@@ -52,12 +88,26 @@ function Login() {
                   label="Password"
                   type={"password"}
                   width={"100%"}
+                  value={credenziali.password}
+                  onChange={(e) =>
+                    setCredenziali({ ...credenziali, password: e })
+                  }
                 />
-                <Switch flex={1}>Ricordami al prossimo accesso</Switch>
+                <Switch
+                  flex={1}
+                  value={credenziali.ricordami}
+                  onChange={(e) =>
+                    setCredenziali({ ...credenziali, ricordami: e })
+                  }
+                >
+                  Ricordami al prossimo accesso
+                </Switch>
               </Flex>
               <ButtonGroup>
                 <Button variant="primary">Recupera Password</Button>
-                <Button variant="accent">Accedi</Button>
+                <Button variant="accent" onPress={autenticaUtente}>
+                  Accedi
+                </Button>
               </ButtonGroup>
             </Flex>
           </View>
