@@ -12,13 +12,13 @@ import { getAuth } from "firebase/auth";
 
 // TODO: Spostare i dati di configurazione come variabili env
 const firebaseConfig = {
-  apiKey: "AIzaSyD-HAWTDwbIIgfJaaxF6tUXPORXO4QWAvw",
-  authDomain: "photofloyd-72ed0.firebaseapp.com",
-  projectId: "photofloyd-72ed0",
-  storageBucket: "photofloyd-72ed0.appspot.com",
-  messagingSenderId: "270577410766",
-  appId: "1:270577410766:web:52f1107cc8edc91779e69f",
-  measurementId: "G-PQ248R8CZD"
+  apiKey: process.env.REACT_APP_APIKEY,
+  authDomain: process.env.REACT_APP_AUTHDOMAIN,
+  projectId: process.env.REACT_APP_PROJECTID,
+  storageBucket: process.env.REACT_APP_STORAGEBUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
+  appId: process.env.REACT_APP_APPID,
+  measurementId: process.env.REACT_APP_MEASUREMENTID
 };
 
 // Inizializzo Firebase
