@@ -2,6 +2,7 @@
   "name": "photofloyd-webapp",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@adobe/react-spectrum": "^3.25.1",
     "@testing-library/jest-dom": "^5.16.5",

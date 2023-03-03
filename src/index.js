@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
-
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import {defaultTheme, Provider} from '@adobe/react-spectrum';
+
+import App from './App';
+import './index.css';
 
 
 // TODO: Spostare i dati di configurazione come variabili env
@@ -30,7 +31,9 @@ const auth = getAuth(app);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider theme={defaultTheme} colorScheme="light">
+      <App />
+    </Provider>
   </React.StrictMode>
 );
 
