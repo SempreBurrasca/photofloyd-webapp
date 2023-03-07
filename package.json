@@ -5,6 +5,8 @@
   "homepage": ".",
   "dependencies": {
     "@adobe/react-spectrum": "^3.25.1",
+    "@react-spectrum/avatar": "^3.0.0-beta.0",
+    "@react-spectrum/toast": "^3.0.0-alpha.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

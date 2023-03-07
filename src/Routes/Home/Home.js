@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { Flex, Item, TabPanels } from "@adobe/react-spectrum";
+import LayoutConHeader from "../../Layouts/LayoutConHeader";
 
 function Home() {
   const navigate = useNavigate();
   useEffect(() => {
-    verificaAutenticazione()
+    verificaAutenticazione();
   });
 
   let verificaAutenticazione = async () => {
@@ -16,19 +18,19 @@ function Home() {
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
         // ...
-        console.log("Autenticato",user)
+        console.log("Autenticato", user);
       } else {
         // User is signed out
         // ...
-        console.log("Non autenticato")
-        navigate("/auth")
+        console.log("Non autenticato");
+        navigate("/auth");
       }
     });
   };
   return (
-    <div>
-      <h1>Home</h1>
-    </div>
+    <LayoutConHeader>
+      <Outlet />
+    </LayoutConHeader>
   );
 }
 

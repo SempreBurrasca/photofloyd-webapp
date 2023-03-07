@@ -17,8 +17,9 @@ import {
 } from "firebase/auth";
 import { useNavigate, redirect } from "react-router-dom";
 import LayoutCentratoAlloSchermo from "../../Layouts/LayoutCentratoAlloSchermo";
+import { ToastQueue } from "@react-spectrum/toast";
 
-function Login() {
+function Login(props) {
   const navigate = useNavigate();
   const [credenziali, setCredenziali] = useState({
     email: "",
@@ -36,15 +37,18 @@ function Login() {
     }
     signInWithEmailAndPassword(auth, credenziali.email, credenziali.password)
       .then((userCredential) => {
-        // Signed in
+        // Loggato
         const user = userCredential.user;
         console.log(user);
         navigate("/");
-        // ...
+        ToastQueue.positive("Login effettuato con successo", { timeout: 5000 });
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        return ToastQueue.positive(
+          "Ops! C'è stato un errore con il tuo login: "
+        );
         console.log(error.message);
       });
   };
@@ -108,7 +112,16 @@ function Login() {
                 </Switch>
               </Flex>
               <ButtonGroup>
-                <Button variant="primary">Recupera Password</Button>
+                <Button
+                  variant="primary"
+                  onPress={() =>
+                    ToastQueue.positive("Login effettuato con successo", {
+                      timeout: 5000,
+                    })
+                  }
+                >
+                  Recupera Password
+                </Button>
                 <Button variant="accent" onPress={autenticaUtente}>
                   Accedi
                 </Button>
