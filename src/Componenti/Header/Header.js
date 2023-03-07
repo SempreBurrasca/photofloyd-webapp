@@ -12,22 +12,29 @@ import {
 } from "@adobe/react-spectrum";
 import { Avatar } from "@react-spectrum/avatar";
 import { useNavigate } from "react-router-dom";
+import Edit from "@spectrum-icons/workflow/Edit";
 
 function Header(props) {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <Flex minHeight="size-675" gap="size-400" alignItems={"center"}>
-      <View flex={1} paddingTop="size-200" paddingBottom="size-200" paddingStart="size-800">
+      <View
+        flex={1}
+        paddingTop="size-200"
+        paddingBottom="size-200"
+        paddingStart="size-800"
+      >
         <Flex
           direction="row"
           gap="size-400"
           justifyContent="start"
           alignItems={"center"}
         >
-          <View >
+          <View>
             <h3>Photofloyd</h3>
           </View>
-          <View >
+          <View>
+            {/*AGGIUNGERE FUNZIONE CHE RENDE ATTIVA LA TAB IN BASE ALLA ROUTE*/}
             <Tabs
               aria-label="Menu della dashboard generale"
               isEmphasized
@@ -45,17 +52,27 @@ function Header(props) {
           </View>
         </Flex>
       </View>
-      <View flex={1} paddingTop="size-200" paddingBottom="size-200" paddingEnd="size-800">
+      <View
+        flex={1}
+        paddingTop="size-200"
+        paddingBottom="size-200"
+        paddingEnd="size-800"
+      >
         <Flex
           direction="row"
           gap="size-400"
           justifyContent="end"
           alignItems={"center"}
         >
-          <View justifySelf="end">
-            <ActionGroup onAction={(key) => console.log(key)}>
-              <Item key="add">Add</Item>
-              <Item key="delete">Delete</Item>
+          <View>
+            <ActionGroup onAction={(key) => console.log(key)} isJustified>
+              <Item key="add">
+                <Edit /> Add
+              </Item>
+              <Item key="delete">
+                <Edit />
+                Delete
+              </Item>
             </ActionGroup>
           </View>
           <View>
@@ -67,11 +84,9 @@ function Header(props) {
                   size="avatar-size-700"
                 />
               </ActionButton>
-              <Menu onAction={(key) => alert(key)}>
-                <Item key="cut">Cut</Item>
-                <Item key="copy">Copy</Item>
-                <Item key="paste">Paste</Item>
-                <Item key="replace">Replace</Item>
+              <Menu onAction={(key) => navigate(key)}>
+                <Item key="profilo">Profilo</Item>
+                <Item key="logout">Logout</Item>
               </Menu>
             </MenuTrigger>
           </View>

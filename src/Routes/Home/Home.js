@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
-import { Flex, Item, TabPanels } from "@adobe/react-spectrum";
+import { Outlet, useNavigate } from "react-router-dom";
+
 import LayoutConHeader from "../../Layouts/LayoutConHeader";
 
 function Home() {
