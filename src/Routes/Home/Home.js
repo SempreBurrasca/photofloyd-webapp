@@ -18,7 +18,7 @@ function Home() {
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
         // ...
-        console.log("Autenticato", user);
+        console.log("Autenticato", user,"da Homepage");
       } else {
         // User is signed out
         // ...

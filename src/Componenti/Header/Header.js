@@ -2,6 +2,7 @@ import React from "react";
 import {
   ActionButton,
   ActionGroup,
+  DialogTrigger,
   Flex,
   Item,
   Menu,
@@ -9,13 +10,40 @@ import {
   TabList,
   Tabs,
   View,
+  Content,
+  Dialog,
+  Divider,
+  Heading,
+  Button,
+  ButtonGroup,
+  Header,
+  Text,
+  TextField,
 } from "@adobe/react-spectrum";
 import { Avatar } from "@react-spectrum/avatar";
 import { useNavigate } from "react-router-dom";
-import Edit from "@spectrum-icons/workflow/Edit";
+import UserAdd from "@spectrum-icons/workflow/UserAdd";
+import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
-function Header(props) {
+function HeaderPhotofloyd(props) {
   const navigate = useNavigate();
+  const auth = getAuth();
+
+  const createUser = (email,password) => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  }
+
   return (
     <Flex minHeight="size-675" gap="size-400" alignItems={"center"}>
       <View
@@ -65,14 +93,63 @@ function Header(props) {
           alignItems={"center"}
         >
           <View>
-            <ActionGroup onAction={(key) => console.log(key)} isJustified>
-              <Item key="add">
-                <Edit /> Add
-              </Item>
-              <Item key="delete">
-                <Edit />
-                Delete
-              </Item>
+            <ActionGroup isJustified>
+              <DialogTrigger>
+                <Item key="utente">
+                  <UserAdd />
+                  Crea Utente
+                </Item>
+                {(close) => (
+                  <Dialog>
+                    <Heading>Aggiungi un nuovo utente</Heading>
+                    <Header>Connection status: Connected</Header>
+                    <Divider />
+                    <Content>
+                      <Flex direction={"column"}>
+                        <Text>
+                          Inserisci il nome e l'indirizzo e-mail dell'utente da
+                          aggiungere. La password assegnata di default è
+                          Photofloyd123!{" "}
+                        </Text>
+                        <TextField label="Nome" type="text" width={"100%"} />
+                        <TextField label="E-mail" type="email" width={"100%"} />
+                      </Flex>
+                    </Content>
+                    <ButtonGroup>
+                      <Button variant="secondary" onPress={close}>
+                        Annulla
+                      </Button>
+                      <Button variant="accent" onPress={close}>
+                        Aggiungi Utente
+                      </Button>
+                    </ButtonGroup>
+                  </Dialog>
+                )}
+              </DialogTrigger>
+              <DialogTrigger>
+                <Item key="postazione">
+                  <ProjectAdd />
+                  Crea Postazione
+                </Item>
+                {(close) => (
+                  <Dialog>
+                    <Heading>Crea una nuova postazione</Heading>
+                    <Header>Connection status: Connected</Header>
+                    <Divider />
+                    <Content>
+                      <Text>Start speed test?</Text>
+                    </Content>
+                    <ButtonGroup>
+                      <Button variant="secondary" onPress={close}>
+                        Cancel
+                      </Button>
+                      <Button variant="accent" onPress={close}>
+                        Confirm
+                      </Button>
+                    </ButtonGroup>
+                  </Dialog>
+                )}
+              </DialogTrigger>
             </ActionGroup>
           </View>
           <View>
@@ -96,4 +173,4 @@ function Header(props) {
   );
 }
 
-export default Header;
+export default HeaderPhotofloyd;
