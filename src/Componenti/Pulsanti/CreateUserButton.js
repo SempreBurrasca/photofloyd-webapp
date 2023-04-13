@@ -12,6 +12,7 @@ import {
   Header,
   Text,
   TextField,
+  ActionButton,
 } from "@adobe/react-spectrum";
 import { useNavigate } from "react-router-dom";
 import UserAdd from "@spectrum-icons/workflow/UserAdd";
@@ -46,10 +47,10 @@ function CreateUserButton(props) {
 
   return (
     <DialogTrigger>
-      <Item key="utente">
+      <ActionButton key="utente">
         <UserAdd />
         Crea Utente
-      </Item>
+      </ActionButton>
       {(close) => (
         <Dialog>
           <Heading>Aggiungi un nuovo utente</Heading>

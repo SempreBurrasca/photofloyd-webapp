@@ -13,11 +13,16 @@ import {
   Text,
   TextField,
   ActionButton,
+  ToggleButton,
 } from "@adobe/react-spectrum";
 import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+import { TagGroup } from "@react-spectrum/tag";
+import "./style.scss";
+import { onlyUnique, makeId } from "../../Functions/logicArray";
 
 function CreatePostazioneButton(props) {
   const navigate = useNavigate();
@@ -25,23 +30,83 @@ function CreatePostazioneButton(props) {
   const db = props.db;
   let [newPostazioneName, setNewPostazioneName] = React.useState("");
   let [newPostazioneTag, setNewPostazioneTag] = React.useState([]);
-  let [newPostazioneStaff, setNewPostazioneStaff] = React.useState([]);
+  let [tagSelected, setTagSelected] = React.useState([]);
 
   const recuperaTag = async () => {
     const docRef = doc(props.db, "impostazioni", "tag");
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
+      let arr = [];
+      docSnap.data().postazioni.forEach((element, index) => {
+        arr.push({
+          id: element + "-" + index,
+          name: element,
+        });
+      });
+      setNewPostazioneTag(arr);
+      console.log("Tag recuperati con successo");
     } else {
       // docSnap.data() will be undefined in this case
-      console.log("No such document!");
+      console.log("Non c'è il documento da recuperare (impostazioni=>tag)'");
     }
   };
-
+  const resetState = () => {
+    setNewPostazioneName("");
+    setTagSelected([]);
+  };
+  //manca da completare la logica che impedisca duplicati
+  const aggiungiTag = (item) => {
+    setTagSelected((tagSelected) => [...tagSelected, { id: item, name: item }]);
+  };
+  //manca da completare la logica di rimozione del tag
+  const rimuoviItem = (item) => {
+    console.log(item);
+    let newArr = [...new Set(tagSelected)];
+    console.log(newArr.filter(onlyUnique));
+  };
+  //manca da completare la logica di aggiunta del team
+  const creaPostazione = async () => {
+    var idPostazione = newPostazioneName.replaceAll(" ", "-") + "-" + makeId(5);
+    var user = auth.currentUser;
+    console.log(user);
+    await setDoc(doc(db, "postazioni", idPostazione), {
+      name: newPostazioneName,
+      tag: tagSelected,
+    })
+      .then(async (e) => {
+        console.log("Creata la postazione, aggiungo lo staff=>", e);
+        await setDoc(doc(db, "postazioni", idPostazione, "staff", user.uid), {
+          mail: user.email,
+          uid: user.uid,
+          ref: doc(db, "users", user.uid),
+        })
+          .then(async (e) => {
+            console.log("Aggiunto lo staff =>", e);
+            await setDoc(
+              doc(db, "users", user.uid, "postazioni", idPostazione),
+              {
+                name: newPostazioneName,
+                ref: doc(db, "postazioni", idPostazione),
+                tag: tagSelected,
+              }
+            );
+          })
+          .catch((e) => {
+            console.log("errore nella creazione dello users=>", e);
+          });
+      })
+      .catch((e) => {
+        console.log("errore=>", e);
+      });
+  };
   return (
-    <DialogTrigger onOpenChange={(e)=>{e&&recuperaTag()}}>
-      <ActionButton key="utente">
+    <DialogTrigger
+      onOpenChange={(e) => {
+        e ? recuperaTag() : resetState();
+      }}
+    >
+      <ActionButton key="postazione">
         <ProjectAdd />
         Crea Postazione
       </ActionButton>
@@ -59,27 +124,47 @@ function CreatePostazioneButton(props) {
                 label="Nome"
                 type="text"
                 width={"100%"}
-      
+                value={newPostazioneName}
+                onChange={setNewPostazioneName}
               />
-              <TextField
-                label="E-mail"
-                type="email"
-                width={"100%"}
-
-              />
-              <TextField
-                label="Telefono"
-                type="text"
-                width={"100%"}
-    
-              />
+              {newPostazioneTag && (
+                <TagGroup
+                  items={newPostazioneTag}
+                  label="Tag"
+                  aria-label="Tag selezionabili per la postazione"
+                >
+                  {(item) => (
+                    <Item key={item.id}>
+                      <a
+                        className="tag-button"
+                        onClick={() => aggiungiTag(item.name)}
+                      >
+                        {item.name}
+                      </a>
+                    </Item>
+                  )}
+                </TagGroup>
+              )}
+              {tagSelected.length > 0 && (
+                <TagGroup
+                  items={tagSelected}
+                  label="Tag Selezionati"
+                  aria-label="Tag selezionabili per la postazione"
+                  allowsRemoving
+                  onRemove={rimuoviItem}
+                >
+                  {(item, index) => (
+                    <Item key={item.id + "-" + makeId(3)}>{item.name}</Item>
+                  )}
+                </TagGroup>
+              )}
             </Flex>
           </Content>
           <ButtonGroup>
             <Button variant="secondary" onPress={close}>
               Annulla
             </Button>
-            <Button variant="accent" onPress={close}>
+            <Button variant="accent" onPress={creaPostazione}>
               Crea Postazione
             </Button>
           </ButtonGroup>

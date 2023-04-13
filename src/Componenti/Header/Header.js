@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
 import { getAuth } from "firebase/auth";
 import CreatePostazioneButton from "../Pulsanti/CreatePostazioneButton";
-
+import CreateUserButton from "../Pulsanti/CreateUserButton"
 function HeaderPhotofloyd(props) {
   const navigate = useNavigate();
   const auth = getAuth();
@@ -52,7 +52,7 @@ function HeaderPhotofloyd(props) {
             <Tabs
               aria-label="Menu della dashboard generale"
               isEmphasized
-              onSelectionChange={(key) => navigate(key)}
+              onSelectionChange={(key) => navigate("/"+key)}
               defaultSelectedKey="postazioni"
             >
               <TabList>
@@ -80,6 +80,7 @@ function HeaderPhotofloyd(props) {
         >
           <View>
             <CreatePostazioneButton db={props.db}/>
+            <CreateUserButton db={props.db}/>
           </View>
           <View>
             <MenuTrigger>

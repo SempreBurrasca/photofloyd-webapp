@@ -1,22 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  getAuth,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateProfile,
+} from "firebase/auth";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import LayoutDiSezione from "../../Layouts/LayoutDiSezione";
 import { ActionButton, Flex, TextField, Well } from "@adobe/react-spectrum";
 
 function Profilo() {
+  useEffect(() => {
+    if (user !== null) {
+      setUtente(user);
+      console.log(utente);
+    }
+  }, []);
   const navigate = useNavigate();
   const auth = getAuth();
   const user = auth.currentUser;
   const [utente, setUtente] = useState({});
-  const [password,setPassword]=React.useState()
-
-  useEffect(() => {
-    if (user !== null) {
-      setUtente(user);
-    }
+  const [password, setPassword] = React.useState();
+  const [newData, setNewData] = React.useState({
+    displayName:  auth.currentUser.displayName,
+    email:  auth.currentUser.email,
+    phoneNumber:  auth.currentUser.phoneNumber,
   });
+
+  const recuperoPassword = () => {
+    sendPasswordResetEmail(auth, utente.email)
+      .then(() => {
+        // Password reset email sent!
+        // ..
+        console.log("Email Inviata con successo");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        // ..
+      });
+  };
+
+  const aggiornaProfilo = () => {
+    updateProfile(auth.currentUser, {
+      displayName: newData.displayName,
+      phoneNumber: newData.phoneNumber,
+    })
+      .then(() => {
+        // Profile updated!
+        // ...
+        console.log("Profilo Aggiornato",{
+          displayName: newData.displayName,
+          phoneNumber: newData.phoneNumber,
+        });
+        setUtente(user);
+      })
+      .catch((error) => {
+        // An error occurred
+        // ...
+        console.log(error);
+      });
+  };
 
   return (
     <LayoutDiSezione>
@@ -26,20 +72,31 @@ function Profilo() {
         <Well>
           Da questa pagina puoi modificare i dati inerenti al tuo profilo.
         </Well>
-        <TextField label="Nome Utente" type="text" width={"100%"} />
         <TextField
-          label="Email"
-          type="email"
+          label="Nome Utente"
+          type="text"
           width={"100%"}
-          value={utente.email}
+          value={newData.displayName}
+          onChange={(value) => {
+            setNewData({ ...newData, displayName: value });
+          }}
         />
         <TextField
-          label="Password"
-          type="password"
+          label="Telefono"
+          type="text"
           width={"100%"}
-          value={password}
+          value={newData.phoneNumber}
+          onChange={(value) => {
+            setNewData({ ...newData, phoneNumber: value });
+          }}
         />
-        <ActionButton isDisabled>Salva Informazioni</ActionButton>
+
+        <ActionButton onPress={aggiornaProfilo}>
+          Salva Informazioni
+        </ActionButton>
+        <ActionButton onPress={recuperoPassword}>
+          Recupera Password
+        </ActionButton>
       </Flex>
     </LayoutDiSezione>
   );
