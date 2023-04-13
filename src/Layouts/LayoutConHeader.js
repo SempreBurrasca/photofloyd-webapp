@@ -5,7 +5,7 @@ import HeaderPhotofloyd from "../Componenti/Header/Header";
 function LayoutConHeader(props) {
   return (
     <Flex direction="column" minHeight="100vh" gap="size-100">
-      <HeaderPhotofloyd />
+      <HeaderPhotofloyd db={props.db}/>
       <Divider size="M" />
       {props.children}
     </Flex>

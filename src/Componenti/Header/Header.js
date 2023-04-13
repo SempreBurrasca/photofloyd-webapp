@@ -22,27 +22,13 @@ import {
 } from "@adobe/react-spectrum";
 import { Avatar } from "@react-spectrum/avatar";
 import { useNavigate } from "react-router-dom";
-import UserAdd from "@spectrum-icons/workflow/UserAdd";
 import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import CreatePostazioneButton from "../Pulsanti/CreatePostazioneButton";
 
 function HeaderPhotofloyd(props) {
   const navigate = useNavigate();
   const auth = getAuth();
-
-  const createUser = (email,password) => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
-  }
 
   return (
     <Flex minHeight="size-675" gap="size-400" alignItems={"center"}>
@@ -93,64 +79,7 @@ function HeaderPhotofloyd(props) {
           alignItems={"center"}
         >
           <View>
-            <ActionGroup isJustified>
-              <DialogTrigger>
-                <Item key="utente">
-                  <UserAdd />
-                  Crea Utente
-                </Item>
-                {(close) => (
-                  <Dialog>
-                    <Heading>Aggiungi un nuovo utente</Heading>
-                    <Header>Connection status: Connected</Header>
-                    <Divider />
-                    <Content>
-                      <Flex direction={"column"}>
-                        <Text>
-                          Inserisci il nome e l'indirizzo e-mail dell'utente da
-                          aggiungere. La password assegnata di default è
-                          Photofloyd123!{" "}
-                        </Text>
-                        <TextField label="Nome" type="text" width={"100%"} />
-                        <TextField label="E-mail" type="email" width={"100%"} />
-                      </Flex>
-                    </Content>
-                    <ButtonGroup>
-                      <Button variant="secondary" onPress={close}>
-                        Annulla
-                      </Button>
-                      <Button variant="accent" onPress={close}>
-                        Aggiungi Utente
-                      </Button>
-                    </ButtonGroup>
-                  </Dialog>
-                )}
-              </DialogTrigger>
-              <DialogTrigger>
-                <Item key="postazione">
-                  <ProjectAdd />
-                  Crea Postazione
-                </Item>
-                {(close) => (
-                  <Dialog>
-                    <Heading>Crea una nuova postazione</Heading>
-                    <Header>Connection status: Connected</Header>
-                    <Divider />
-                    <Content>
-                      <Text>Start speed test?</Text>
-                    </Content>
-                    <ButtonGroup>
-                      <Button variant="secondary" onPress={close}>
-                        Cancel
-                      </Button>
-                      <Button variant="accent" onPress={close}>
-                        Confirm
-                      </Button>
-                    </ButtonGroup>
-                  </Dialog>
-                )}
-              </DialogTrigger>
-            </ActionGroup>
+            <CreatePostazioneButton db={props.db}/>
           </View>
           <View>
             <MenuTrigger>

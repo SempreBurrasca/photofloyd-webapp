@@ -23,7 +23,7 @@ const firebaseConfig = {
 
 // Inizializzo Firebase
 const app = initializeApp(firebaseConfig);
-//const analytics = getAnalytics(app);
+const analytics = getAnalytics(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
@@ -31,7 +31,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider theme={defaultTheme} colorScheme="light">
-      <App />
+      <App db={db}/>
     </Provider>
   </React.StrictMode>
 );

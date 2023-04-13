@@ -12,12 +12,13 @@ import DashboardAiuto from "./Componenti/Dashboard/DashboardAiuto";
 import { Button } from "@adobe/react-spectrum";
 import Profilo from "./Routes/Profilo/Profilo";
 
-function App() {
+function App(props) {
+  
   return (
     <BrowserRouter>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Home />}>
+          <Route path="/" element={<Home db={props.db}/>}>
             <Route path="/" element={<DashboardPostazioni />} />
             <Route path="staff" element={<DashboardStaff />} />
             <Route path="finanze" element={<DashboardFinanze />} />

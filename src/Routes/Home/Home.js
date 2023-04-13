@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import LayoutConHeader from "../../Layouts/LayoutConHeader";
 
-function Home() {
+function Home(props) {
   const navigate = useNavigate();
   useEffect(() => {
     verificaAutenticazione();
@@ -28,7 +28,7 @@ function Home() {
     });
   };
   return (
-    <LayoutConHeader>
+    <LayoutConHeader db={props.db}>
       <Outlet />
     </LayoutConHeader>
   );
