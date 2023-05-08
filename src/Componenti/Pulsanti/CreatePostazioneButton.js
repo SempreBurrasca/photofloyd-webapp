@@ -23,6 +23,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { TagGroup } from "@react-spectrum/tag";
 import "./style.scss";
 import { onlyUnique, makeId } from "../../Functions/logicArray";
+import { ToastQueue } from "@react-spectrum/toast";
 
 function CreatePostazioneButton(props) {
   const navigate = useNavigate();
@@ -91,13 +92,16 @@ function CreatePostazioneButton(props) {
                 tag: tagSelected,
               }
             );
+            ToastQueue.positive("Postazione creata con successo",{timeout:2000})
           })
           .catch((e) => {
             console.log("errore nella creazione dello users=>", e);
+            ToastQueue.negative("C'è stato un errore con la creazione della postazione, nell'aggiunta dello staff",{timeout:2000})
           });
       })
       .catch((e) => {
         console.log("errore=>", e);
+        ToastQueue.negative("C'è stato un errore con la creazione della postazione",{timeout:2000})
       });
   };
   return (

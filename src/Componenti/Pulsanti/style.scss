@@ -1,4 +1,8 @@
 .tag-button{
-    color: red;
+    color: black;
     padding: 5px;
+   &.active{
+        color: red;
+        padding: 5px;
+    }
 }

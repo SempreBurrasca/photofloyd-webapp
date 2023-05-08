@@ -2,8 +2,9 @@ import React from "react";
 import { Flex, Heading, Text, Well } from "@adobe/react-spectrum";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import TabellaPostazioni from "../Tabelle/TabellaPostazioni";
+import { ToastQueue } from "@react-spectrum/toast";
 function DashboardPostazioni(props) {
   React.useEffect(() => {
     recuperaPostazioni();
@@ -35,10 +36,16 @@ function DashboardPostazioni(props) {
         console.log(user.uid, "ciao");
         getPostazioneDocs(user.uid)
           .then((e) => {
-            console.log(e, "succ");
+            ToastQueue.positive("Postazioni recuperate con successo", {
+              timeout: 1000,
+            });
           })
           .catch((e) => {
             console.log(e, "errore");
+            ToastQueue.negative(e.message, {
+              timeout: 1000,
+            });
+            
           });
       })
       .catch((e) => {
@@ -49,7 +56,8 @@ function DashboardPostazioni(props) {
   return (
     <Flex direction={"column"} minHeight="100vh" alignItems={"center"}>
       <Heading level={3}>
-        Ciao {auth.currentUser.displayName}, seleziona la postazione dalla quale lavorare.
+        Ciao {auth.currentUser ? auth.currentUser.displayName : ""}, seleziona
+        la postazione dalla quale lavorare.
       </Heading>
       {postazioniUtente.length > 1 ? (
         <TabellaPostazioni postazioni={postazioniUtente} />

@@ -2,9 +2,10 @@
   "name": "photofloyd-webapp",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
+  "homepage": "/app",
   "dependencies": {
     "@adobe/react-spectrum": "^3.25.1",
+    "@react-spectrum/actionbar": "^3.0.0-rc.0",
     "@react-spectrum/avatar": "^3.0.0-beta.0",
     "@react-spectrum/tag": "^3.0.0-rc.0",
     "@react-spectrum/toast": "^3.0.0-alpha.1",

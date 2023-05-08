@@ -9,6 +9,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import LayoutDiSezione from "../../Layouts/LayoutDiSezione";
 import { ActionButton, Flex, TextField, Well } from "@adobe/react-spectrum";
+import { ToastQueue } from "@react-spectrum/toast";
 
 function Profilo() {
   useEffect(() => {
@@ -34,11 +35,13 @@ function Profilo() {
         // Password reset email sent!
         // ..
         console.log("Email Inviata con successo");
+        ToastQueue.positive("Abbiamo inviato una mail per la reimpostazione della password",{timeout:5000})
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.log(errorCode, errorMessage);
+        ToastQueue.negative(errorMessage,{timeout:5000})
         // ..
       });
   };
@@ -56,11 +59,13 @@ function Profilo() {
           phoneNumber: newData.phoneNumber,
         });
         setUtente(user);
+        ToastQueue.positive("Profilo Aggiornato",{timeout:5000})
       })
       .catch((error) => {
         // An error occurred
         // ...
         console.log(error);
+        ToastQueue.negative(error.message,{timeout:5000})
       });
   };
 

@@ -9,6 +9,7 @@ import { defaultTheme, Provider } from "@adobe/react-spectrum";
 
 import App from "./App";
 import "./index.css";
+import { ToastContainer } from "@react-spectrum/toast";
 
 // TODO: Spostare i dati di configurazione come variabili env
 const firebaseConfig = {
@@ -29,11 +30,10 @@ const auth = getAuth(app);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
     <Provider theme={defaultTheme} colorScheme="light">
-      <App db={db}/>
+      <ToastContainer/>
+      <App db={db} />
     </Provider>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -14,7 +14,7 @@ import Postazione from "./Routes/Postazione/Postazione";
 function App(props) {
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <div className="App">
         <Routes>
           <Route path="/" element={<Home db={props.db} />}>

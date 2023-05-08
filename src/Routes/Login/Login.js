@@ -49,7 +49,9 @@ function Login(props) {
         return ToastQueue.positive(
           "Ops! C'è stato un errore con il tuo login: "
         );
-        console.log(error.message);
+        console.log(error,error.message);
+        ToastQueue.negative(error.message, { timeout: 5000 })
+        
       });
   };
 
