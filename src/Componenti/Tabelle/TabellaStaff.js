@@ -11,23 +11,31 @@ import {
   ActionButton,
   View,
   TextField,
+  DialogTrigger,
+  Dialog,
+  Button,
+  ButtonGroup,
+  Content,
+  Divider,
+  Header,
+  Heading,
 } from "@adobe/react-spectrum";
 import Edit from "@spectrum-icons/workflow/Edit";
 import Search from "@spectrum-icons/workflow/Search";
-
+import DialogEditUser from "../../Organismi/Dialogs/DialogEditUser";
+import { makeId } from "../../Functions/logicArray";
 function TabellaStaff(props) {
   const navigate = useNavigate();
-
+  const { staff } = props;
   return (
     <Flex
-
       height="100%"
       width="90vw"
       direction={"column"}
       alignItems="center"
       gap={"size-200"}
     >
-      <TextField label="Ricerca" icon={<Search/>} width="80vw"/>
+      <TextField label="Ricerca" icon={<Search />} isDisabled width="80vw" />
       <TableView
         height="100%"
         width="80vw"
@@ -39,42 +47,24 @@ function TabellaStaff(props) {
           <Column align="end">Modifica</Column>
         </TableHeader>
         <TableBody>
-          <Row>
-            <Cell align="start">Games</Cell>
-            <Cell align="start">File folder</Cell>
-            <Cell>
-              <ActionButton>
-                <Edit />
-              </ActionButton>
-            </Cell>
-          </Row>
-          <Row>
-            <Cell align="start">Program Files</Cell>
-            <Cell align="start">File folder</Cell>
-            <Cell>
-              <ActionButton>
-                <Edit />
-              </ActionButton>
-            </Cell>
-          </Row>
-          <Row>
-            <Cell align="start">bootmgr</Cell>
-            <Cell align="start">System file</Cell>
-            <Cell>
-              <ActionButton>
-                <Edit />
-              </ActionButton>
-            </Cell>
-          </Row>
-          <Row>
-            <Cell align="start">log.txt</Cell>
-            <Cell align="start">Text Document</Cell>
-            <Cell>
-              <ActionButton>
-                <Edit />
-              </ActionButton>
-            </Cell>
-          </Row>
+          {staff.map((user) => (
+            <Row key={makeId(4) + "-" + user.uid}>
+              <Cell align="start">
+                {user.displayName ? user.displayName : user.email}
+              </Cell>
+              <Cell align="start">{user.ruolo ? user.ruolo : "---"}</Cell>
+              <Cell>
+                <DialogTrigger>
+                  <ActionButton>
+                    <Edit />
+                  </ActionButton>
+                  {(close) => (
+                    <DialogEditUser  user={user} close={close} />
+                  )}
+                </DialogTrigger>
+              </Cell>
+            </Row>
+          ))}
         </TableBody>
       </TableView>
     </Flex>

@@ -11,6 +11,7 @@ import {
   CheckboxGroup,
   Content,
   Dialog,
+  DialogContainer,
   DialogTrigger,
   Divider,
   Flex,
@@ -41,11 +42,23 @@ import {
 } from "../../Functions/uploadFileToServer";
 import { uploadToIndexedDB } from "../../Functions/IndexedDB";
 import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
-import { savePhotosToFirebase } from "../../Functions/firebaseFunctions";
+import {
+  getTagsFromFirebase,
+  savePhotosToFirebase,
+} from "../../Functions/firebaseFunctions";
 import DialogAddTag from "./DialogAddTag";
 import DialogAddToFolder from "./DialogAddToFolder";
 import DialogDeleteFotos from "./DialogDeleteFotos";
 import FolderFilter from "../../Organismi/Sidebar/FolderFilter";
+import LabelFilter from "../../Organismi/Sidebar/LabelFilter";
+import NameFilter from "../../Organismi/Sidebar/NameFilter";
+import DialogSellFotos from "./DialogSellFotos";
+import DialogAddToClient from "./DialogAddToClient";
+import FolderUser from "@spectrum-icons/workflow/FolderUser";
+import ClientFilter from "../../Organismi/Sidebar/ClientFilter";
+import DialogEditFoto from "./DialogEditFoto";
+import TabellaVenditePostazione from "../../Componenti/Tabelle/TabellaVenditePostazione";
+import { getSalesByPostazione } from "../../Functions/firebaseGetFunctions";
 
 function Postazione(props) {
   const [filesToUpload, setFilesToUpload] = useState({
@@ -53,7 +66,21 @@ function Postazione(props) {
     folders: [],
   });
   const [selectedFotos, setSelectedFotos] = useState([]);
+  const [cartFotos, setCartFotos] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const user = auth.currentUser;
+  let { postazioneId } = useParams();
+  let [postazione, setPostazione] = React.useState(null);
+  const [filteredPhotos, setFilteredPhotos] = React.useState([]);
+  const [openSellDialog, setOpenSellDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [fotoToEdit, setFotoToEdit] = useState({});
+  const [vendite, setVendite] = useState([]);
   React.useEffect(() => {
+    setSelectedFotos([]);
+    setCartFotos([]);
     getPostazioneDoc()
       .then((e) => {
         ToastQueue.positive(e, {
@@ -65,14 +92,16 @@ function Postazione(props) {
           timeout: 2000,
         });
       });
-    console.log(postazione);
+    getTagsFromFirebase(props.db).then((tags) => {
+      setAvailableTags(tags);
+      console.log(tags);
+    });
   }, []);
-  const navigate = useNavigate();
-  const auth = getAuth();
-  const user = auth.currentUser;
-  let { postazioneId } = useParams();
-  let [postazione, setPostazione] = React.useState(null);
-
+  useEffect(() => {
+    getSalesByPostazione(postazioneId).then((vendite) => {
+      setVendite(vendite);
+    });
+  }, [openSellDialog]);
   //recupero la postazione
   const getPostazioneDoc = async () => {
     const docRef = doc(props.db, "postazioni", postazioneId);
@@ -112,7 +141,7 @@ function Postazione(props) {
         maxHeight="80vh"
         margin={10}
       >
-        <View gridArea="sidebar">
+        <View gridArea="sidebar" overflow={"auto"} maxHeight={"100%"}>
           <Flex direction="column" gap="size-200">
             <Flex direction="column" gap="size-100">
               {selectedFotos.length > 0 ? (
@@ -135,6 +164,9 @@ function Postazione(props) {
                 isJustified
                 density="compact"
                 isDisabled={selectedFotos.length === 0}
+                onAction={(key) => {
+                  key === "sellFotos" && setOpenSellDialog(true);
+                }}
               >
                 <DialogTrigger>
                   <Item key="addTag">
@@ -166,10 +198,27 @@ function Postazione(props) {
                     />
                   )}
                 </DialogTrigger>
+                <DialogTrigger>
+                  <Item key="addToClient">
+                    <FolderUser />
+                    <Text>Aggiungi a cliente</Text>
+                  </Item>
+                  {(close) => (
+                    <DialogAddToClient
+                      close={close}
+                      selectedFotos={selectedFotos}
+                      db={props.db}
+                      postazioneId={postazioneId}
+                      setSelectedFotos={(e) => setSelectedFotos(e)}
+                    />
+                  )}
+                </DialogTrigger>
+
                 <Item key="sellFotos">
                   <Shop />
                   <Text>Vendi</Text>
                 </Item>
+
                 <DialogTrigger>
                   <Item key="deleteFotos">
                     <Delete />
@@ -186,31 +235,74 @@ function Postazione(props) {
                   )}
                 </DialogTrigger>
               </ActionGroup>
+              {openSellDialog && (
+                <DialogContainer type="fullscreen">
+                  <DialogSellFotos
+                    close={() => setOpenSellDialog(false)}
+                    selectedFotos={selectedFotos}
+                    db={props.db}
+                    postazioneId={postazioneId}
+                    setSelectedFotos={(e) => setSelectedFotos(e)}
+                    cartFotos={cartFotos}
+                    setCartFotos={setCartFotos}
+                  />
+                </DialogContainer>
+              )}
             </Flex>
             <Divider size="M" />
-            <Flex direction="column" gap="size-100">
-              <Heading>Filtra e Ricerca</Heading>
-              <Text>
-                Utilizza i seguenti componenti per cercare delle foto specifiche
-              </Text>
-              <FolderFilter
-                db={props.db}
-                postazioneId={postazioneId}
-                setSelectedFotos={(e) => setSelectedFotos(e)}
-              />
-            </Flex>
+            <View overflow={"auto"}>
+              <Flex direction="column" gap="size-100">
+                <Heading>Filtra e Ricerca</Heading>
+                <NameFilter
+                  db={props.db}
+                  postazioneId={postazioneId}
+                  filteredPhotos={filteredPhotos}
+                  setFilteredPhotos={setFilteredPhotos}
+                />
+
+                <FolderFilter
+                  db={props.db}
+                  postazioneId={postazioneId}
+                  filteredPhotos={filteredPhotos}
+                  setFilteredPhotos={setFilteredPhotos}
+                />
+                <ClientFilter
+                  db={props.db}
+                  postazioneId={postazioneId}
+                  filteredPhotos={filteredPhotos}
+                  setFilteredPhotos={setFilteredPhotos}
+                />
+                <LabelFilter
+                  db={props.db}
+                  postazioneId={postazioneId}
+                  filteredPhotos={filteredPhotos}
+                  setFilteredPhotos={setFilteredPhotos}
+                />
+              </Flex>
+            </View>
           </Flex>
         </View>
 
         <Divider orientation="vertical" size="M" />
 
-        <View gridArea="content">
+        <View gridArea="content" overflow={"auto"} maxHeight={"100%"}>
           <Flex direction="column" gap="size-200" justifyContent={"center"}>
             <Flex
               gap="size-100"
               alignItems={"center"}
               justifyContent="space-between"
             >
+              {openEditDialog && (
+                <DialogContainer type="fullscreen">
+                  <DialogEditFoto
+                    close={() => setOpenEditDialog(false)}
+                    fotoToEdit={fotoToEdit}
+                    db={props.db}
+                    postazioneId={postazioneId}
+                    setSelectedFotos={(e) => setFotoToEdit(e)}
+                  />
+                </DialogContainer>
+              )}
               <Flex direction="column" gap="size-100">
                 <Flex gap="size-100" justifyContent="start">
                   <a>Home{">"} </a>
@@ -249,6 +341,7 @@ function Postazione(props) {
                         accept="image/*"
                       />
                       <TabellaFotoInUpload
+                        availableTags={availableTags}
                         callSetFilesToUpload={callSetFilesToUpload}
                       />
                     </Content>
@@ -285,7 +378,6 @@ function Postazione(props) {
             >
               <TabList>
                 <Item key="Fotografie">Fotografie</Item>
-                <Item key="Staff">Staff</Item>
                 <Item key="Impostazioni">Impostazioni</Item>
                 <Item key="Finanze">Finanze</Item>
               </TabList>
@@ -296,16 +388,18 @@ function Postazione(props) {
                     postazioneId={postazioneId}
                     setSelectedFotos={setSelectedFotos}
                     selectedFotos={selectedFotos}
+                    filteredPhotos={filteredPhotos}
+                    availableTags={availableTags}
+                    fotoToEdit={fotoToEdit}
+                    setFotoToEdit={setFotoToEdit}
+                    setOpenEditDialog={setOpenEditDialog}
                   />
-                </Item>
-                <Item key="Staff">
-                  <span>Staff</span>
                 </Item>
                 <Item key="Impostazioni">
                   <span>Impostazioni</span>
                 </Item>
                 <Item key="Finanze">
-                  <span>Finanze</span>
+                  <TabellaVenditePostazione vendite={vendite} />
                 </Item>
               </TabPanels>
             </Tabs>

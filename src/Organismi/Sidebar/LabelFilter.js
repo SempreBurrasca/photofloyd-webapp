@@ -28,8 +28,11 @@ import {
 } from "@adobe/react-spectrum";
 
 import { getCartelle, getPhotoNames } from "../../Functions/firebaseFunctions";
+import Checkmark from "@spectrum-icons/workflow/Checkmark";
+import Help from "@spectrum-icons/workflow/Help";
+import Cancel from "@spectrum-icons/workflow/Cancel";
 
-function FolderFilter(props) {
+function LabelFilter(props) {
   let [selected, setSelected] = React.useState([]);
   let [folders, setFolders] = useState([]);
   useEffect(() => {
@@ -37,29 +40,27 @@ function FolderFilter(props) {
   }, []);
   const setFilteredPhotos = props.setFilteredPhotos;
   const filterFotos = async (target) => {
-    if(target.length===0){
-      setFilteredPhotos([])
-      await setSelected(target);
-    }else{
-      await getPhotoNames(props.db,target,props.postazioneId).then((e)=>{setFilteredPhotos(props.filteredPhotos.concat(e))})
-      await setSelected(target);
+    if (props.filteredPhotos.length > 0) {
+      console.log(target, props.filteredPhotos);
     }
-   
+    await setSelected(target);
   };
   return (
     <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
-      <Heading level={5}>Filtra per cartella</Heading>
+      <Heading level={5}>Filtra per segno</Heading>
       <CheckboxGroup value={selected} onChange={filterFotos}>
-        {folders &&
-          folders.length > 0 &&
-          folders.map((folder) => (
-            <Checkbox key={folder.data.name} value={folder.data.name}>
-              {folder.data.name}
-            </Checkbox>
-          ))}
+        <Checkbox key={"Check"} value={"Check"}>
+          <Checkmark />
+        </Checkbox>
+        <Checkbox key={"Help"} value={"Help"}>
+          <Help />
+        </Checkbox>
+        <Checkbox key={"Cancel"} value={"Cancel"}>
+          <Cancel />
+        </Checkbox>
       </CheckboxGroup>
     </Flex>
   );
 }
 
-export default FolderFilter;
+export default LabelFilter;

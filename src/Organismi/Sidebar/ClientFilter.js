@@ -27,13 +27,15 @@ import {
   Well,
 } from "@adobe/react-spectrum";
 
-import { getCartelle, getPhotoNames } from "../../Functions/firebaseFunctions";
+import { getCartelle, getPhotoNames, getPhotoNamesByClient } from "../../Functions/firebaseFunctions";
+import { getClienti } from "../../Functions/firebaseGetFunctions";
+import { makeId } from "../../Functions/logicArray";
 
-function FolderFilter(props) {
+function ClientFilter(props) {
   let [selected, setSelected] = React.useState([]);
-  let [folders, setFolders] = useState([]);
+  let [clients, setClients] = useState([]);
   useEffect(() => {
-    getCartelle(props.db, props.postazioneId, setFolders);
+    getClienti(props.db, props.postazioneId, setClients);
   }, []);
   const setFilteredPhotos = props.setFilteredPhotos;
   const filterFotos = async (target) => {
@@ -41,20 +43,20 @@ function FolderFilter(props) {
       setFilteredPhotos([])
       await setSelected(target);
     }else{
-      await getPhotoNames(props.db,target,props.postazioneId).then((e)=>{setFilteredPhotos(props.filteredPhotos.concat(e))})
+      await getPhotoNamesByClient(props.db,target,props.postazioneId).then((e)=>{setFilteredPhotos(props.filteredPhotos.concat(e))})
       await setSelected(target);
     }
    
   };
   return (
     <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
-      <Heading level={5}>Filtra per cartella</Heading>
+      <Heading level={5}>Filtra per Cliente</Heading>
       <CheckboxGroup value={selected} onChange={filterFotos}>
-        {folders &&
-          folders.length > 0 &&
-          folders.map((folder) => (
-            <Checkbox key={folder.data.name} value={folder.data.name}>
-              {folder.data.name}
+        {clients &&
+          clients.length > 0 &&
+          clients.map((client) => (
+            <Checkbox key={client.id+"-"+makeId(3)} value={client.id}>
+              {client.id}
             </Checkbox>
           ))}
       </CheckboxGroup>
@@ -62,4 +64,4 @@ function FolderFilter(props) {
   );
 }
 
-export default FolderFilter;
+export default ClientFilter;

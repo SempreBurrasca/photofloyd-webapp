@@ -27,7 +27,7 @@ function TabellaPostazioni(props) {
       alignItems="center"
       gap={"size-200"}
     >
-      <TextField label="Ricerca" icon={<Search />} width="80vw" />
+      <TextField label="Ricerca" icon={<Search />} isDisabled width="80vw" />
       <TableView
         height="100%"
         width="80vw"
@@ -40,11 +40,11 @@ function TabellaPostazioni(props) {
         </TableHeader>
         <TableBody>
           {props.postazioni.map((postazione) => (
-            <Row key={postazione.id}>
-              <Cell align="start">{postazione.data.name}</Cell>
+            <Row key={makeId(4) + "-" + postazione.id}>
+              <Cell align="start">{postazione.name}</Cell>
               <Cell align="start">
                 <TagGroup
-                  items={postazione.data.tag}
+                  items={postazione.tag}
                   aria-label="Tag del progetto"
                 >
                   {(item, index) => (

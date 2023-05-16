@@ -1,0 +1,7 @@
+# Abilita il modulo mod_headers
+<IfModule mod_headers.c>
+  # Imposta le intestazioni CORS
+  Header set Access-Control-Allow-Origin "http://localhost:3000"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>

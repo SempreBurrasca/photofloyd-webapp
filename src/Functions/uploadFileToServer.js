@@ -17,7 +17,11 @@ export const getImagesFromFileInput = (idInput) => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const imageURL = URL.createObjectURL(file);
-      images.push({ name: file.name+"-"+makeId(5), url: imageURL, tags: [] });
+      images.push({
+        name: makeId(5) + "-" + file.name,
+        url: imageURL,
+        tags: [],
+      });
     }
     resolve(images);
   });
@@ -74,4 +78,43 @@ export const uploadFotoFinal = async (object) => {
 export const saveToBrowserStorage = (f) => {
   const mainDirectory = "";
   // Check for support indexedDB.
+};
+
+export const uploadSingleImage = async (imageObject) => {
+  // Extract the image data from the object
+  const { imageBase64,fullName,mimeType } = imageObject;
+
+  // Convert the base64 data to a blob
+  const response = await fetch(imageBase64);
+  const blob = await response.blob();
+
+  const formData = new FormData();
+
+  // Wait for all the blob URLs to be converted to File objects
+  const files = [new File([blob], fullName, { type: mimeType })];
+
+  // Append each File object to the FormData object
+  files.forEach((file) => {
+    formData.append("photos[]", file);
+  });
+
+  // Send the FormData object using fetch
+  fetch(process.env.PUBLIC_URL + "/upload.php", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response;
+      } else {
+        throw new Error("Errore nel caricamento dei file");
+      }
+    })
+    .then((data) => {
+      console.log("File caricati con successo: ", data);
+      return data;
+    })
+    .catch((error) => {
+      console.error("Errore: ", error);
+    });
 };

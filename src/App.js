@@ -21,7 +21,7 @@ function App(props) {
             <Route path="/" element={<DashboardPostazioni db={props.db} />} />
             <Route path="staff" element={<DashboardStaff />} />
             <Route path="finanze" element={<DashboardFinanze />} />
-            <Route path="impostazioni" element={<DashboardImpostazioni />} />
+            <Route path="impostazioni" element={<DashboardImpostazioni db={props.db}/>} />
             <Route path="aiuto" element={<DashboardAiuto />} />
           </Route>
           <Route path="/postazione/:postazioneId" element={<Postazione db={props.db}/>}/>

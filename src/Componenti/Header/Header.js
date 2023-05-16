@@ -25,11 +25,19 @@ import { useNavigate } from "react-router-dom";
 import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
 import { getAuth } from "firebase/auth";
 import CreatePostazioneButton from "../Pulsanti/CreatePostazioneButton";
-import CreateUserButton from "../Pulsanti/CreateUserButton"
+import CreateUserButton from "../Pulsanti/CreateUserButton";
+import { key } from "localforage";
 function HeaderPhotofloyd(props) {
   const navigate = useNavigate();
   const auth = getAuth();
-
+  const handleAction = (key) => {
+    if (key === "profilo") {
+      navigate(key);
+    } else {
+      auth.signOut();
+      navigate("/");
+    }
+  };
   return (
     <Flex minHeight="size-675" gap="size-400" alignItems={"center"}>
       <View
@@ -52,7 +60,7 @@ function HeaderPhotofloyd(props) {
             <Tabs
               aria-label="Menu della dashboard generale"
               isEmphasized
-              onSelectionChange={(key) => navigate("/"+key)}
+              onSelectionChange={(key) => navigate("/" + key)}
               defaultSelectedKey="postazioni"
             >
               <TabList>
@@ -79,8 +87,8 @@ function HeaderPhotofloyd(props) {
           alignItems={"center"}
         >
           <View>
-            <CreatePostazioneButton db={props.db}/>
-            <CreateUserButton db={props.db}/>
+            <CreatePostazioneButton db={props.db} />
+            <CreateUserButton db={props.db} />
           </View>
           <View>
             <MenuTrigger>
@@ -91,7 +99,7 @@ function HeaderPhotofloyd(props) {
                   size="avatar-size-700"
                 />
               </ActionButton>
-              <Menu onAction={(key) => navigate(key)}>
+              <Menu onAction={handleAction}>
                 <Item key="profilo">Profilo</Item>
                 <Item key="logout">Logout</Item>
               </Menu>

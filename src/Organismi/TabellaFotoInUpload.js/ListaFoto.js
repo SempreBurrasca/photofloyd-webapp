@@ -23,6 +23,7 @@ import { TagGroup } from "@react-spectrum/tag";
 import { makeId } from "../../Functions/logicArray";
 import { getImagesFromFileInput } from "../../Functions/uploadFileToServer";
 import { containsObject } from "../../Functions/tools";
+import { getTagsFromFirebase } from "../../Functions/firebaseFunctions";
 
 function ListaFoto(props) {
   const [listPhotos, setList] = useState([]);
@@ -32,11 +33,7 @@ function ListaFoto(props) {
   const [selectedFolders, setSelectedFolders] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedTagsFoto, setSelectedTagsFoto] = useState([]);
-  const availableTags = [
-    { id: 1, name: "Tag1" },
-    { id: 2, name: "Tag2" },
-    { id: 3, name: "Tag3" },
-  ];
+  const availableTags = props.availableTags;
   React.useEffect(() => {
     document.querySelector("#files").addEventListener("change", (event) => {
       getImagesFromFileInput("#files")
@@ -65,7 +62,10 @@ function ListaFoto(props) {
   };
   //manca da completare la logica che impedisca duplicati
   const aggiungiTagFoto = (item) => {
-    setSelectedTagsFoto(selectedTagsFoto.concat({ id: item, name: item }));
+    console.log(item);
+    var arr = selectedTagsFoto;
+    arr.push({ id: item, name: item });
+    setSelectedTagsFoto(arr);
   };
 
   const aggiungiTagListPhotos = async () => {
@@ -146,31 +146,43 @@ function ListaFoto(props) {
         <Flex direction={"column"} gap="size-100">
           <Text level={5}>Aggiungi i Tag alle foto selezionate</Text>
 
-          <TagGroup
-            items={availableTags}
-            label="Tag"
-            aria-label="Tag selezionabili per la fotografie"
-          >
-            {(item) => (
-              <Item key={item.id}>
-                <a
-                  className={containsObject(selectedTagsFoto,{
-                    id:item.name,
-                    name:item.name
-                  })?"tag-button active":"tag-button"}
-     
-                  onClick={() => aggiungiTagFoto(item.name)}
-                >
-                  {item.name}
-                </a>
-              </Item>
-            )}
-          </TagGroup>
-          
-          <ActionButton onPress={() => aggiungiTagListPhotos().then(()=>{
+          {availableTags && (
+            <TagGroup
+              items={availableTags}
+              label="Tag"
+              aria-label="Tag selezionabili per la fotografie"
+            >
+              {(item) => (
+                <Item key={item.id}>
+                  <a
+                    className={
+                      containsObject(selectedTagsFoto, {
+                        id: item.id,
+                        name: item.name,
+                      })
+                        ? "tag-button active"
+                        : "tag-button"
+                    }
+                    onClick={(e) => {
+                      e.target.classList.toggle("active");
+                      aggiungiTagFoto(item.id);
+                    }}
+                  >
+                    {item.name}
+                  </a>
+                </Item>
+              )}
+            </TagGroup>
+          )}
+
+          <ActionButton
+            onPress={() =>
+              aggiungiTagListPhotos().then(() => {
                 setSelectedTagsFoto([]);
                 console.log("Lista foto con tag=>", listPhotos);
-          })}>
+              })
+            }
+          >
             Aggiungi Tag
           </ActionButton>
         </Flex>

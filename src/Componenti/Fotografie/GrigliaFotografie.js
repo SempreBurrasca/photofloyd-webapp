@@ -15,12 +15,14 @@ function GrigliaFotografie(props) {
   const [fotografie, setFotografie] = useState([]);
   const [visibleFotografie, setVisibleFotografie] = useState([]);
   const observer = useRef(null);
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const filteredPhotos = props.filteredPhotos;
 
   useEffect(() => {
+    setSelectedFotos([]);
     getFotografie();
-  }, []);
-
-  useEffect(() => {
     observer.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -38,10 +40,6 @@ function GrigliaFotografie(props) {
       if (observer.current) observer.current.disconnect();
     };
   }, []);
-
-  const navigate = useNavigate();
-  const auth = getAuth();
-  const user = auth.currentUser;
 
   const getFotografie = () => {
     console.log(props.db, "postazioni", props.postazioneId, "fotografie");
@@ -99,7 +97,15 @@ function GrigliaFotografie(props) {
           >
             {visibleFotografie.includes(foto.id) && (
               <CardFoto
+                fotoToEdit={props.fotoToEdit}
+                setFotoToEdit={props.setFotoToEdit}
+                setOpenEditDialog={props.setOpenEditDialog}
                 foto={foto}
+                display={
+                  filteredPhotos.length > 0
+                    ? filteredPhotos.includes(foto.id)
+                    : true
+                }
                 handleSelectFoto={handleSelectFoto}
                 selectedFotografie={selectedFotos}
                 db={props.db}

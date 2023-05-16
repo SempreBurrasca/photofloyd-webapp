@@ -17,33 +17,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import UserAdd from "@spectrum-icons/workflow/UserAdd";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUser } from "../../Functions/firebaseFunctions";
 
 function CreateUserButton(props) {
   const navigate = useNavigate();
   const auth = getAuth();
   let [newUserName, setNewUserName] = React.useState("");
   let [newUserMail, setNewUserMail] = React.useState("");
-  let [newUserPhone, setNewUserPhone] = React.useState("");
-
-  const createUser = () => {
-    auth
-      .createUser({
-        email: newUserMail,
-        emailVerified: false,
-        phoneNumber: newUserPhone,
-        password: "Photofloyd123!",
-        displayName: newUserName,
-        photoURL: "https://placehold.co/400",
-        disabled: false,
-      })
-      .then((userRecord) => {
-        // See the UserRecord reference doc for the contents of userRecord.
-        console.log("Successfully created new user:", userRecord.uid);
-      })
-      .catch((error) => {
-        console.log("Error creating new user:", error);
-      });
-  };
+  let [newUserRole, setNewUserRole] = React.useState("");
 
   return (
     <DialogTrigger>
@@ -76,12 +57,13 @@ function CreateUserButton(props) {
                 value={newUserMail}
                 onChange={setNewUserMail}
               />
+
               <TextField
-                label="Telefono"
+                label="Ruolo"
                 type="text"
                 width={"100%"}
-                value={newUserPhone}
-                onChange={setNewUserPhone}
+                value={newUserRole}
+                onChange={setNewUserRole}
               />
             </Flex>
           </Content>
@@ -89,7 +71,17 @@ function CreateUserButton(props) {
             <Button variant="secondary" onPress={close}>
               Annulla
             </Button>
-            <Button variant="accent" onPress={createUser}>
+            <Button
+              variant="accent"
+              onPress={() => {
+                createUser(
+                  newUserMail,
+                  "Photofloyd123!",
+                  newUserName,
+                  newUserRole
+                );
+              }}
+            >
               Aggiungi Utente
             </Button>
           </ButtonGroup>

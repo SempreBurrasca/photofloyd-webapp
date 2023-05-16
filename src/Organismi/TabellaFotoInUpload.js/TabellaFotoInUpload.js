@@ -19,10 +19,14 @@ function TabellaFotoInUpload(props) {
   return (
     <Flex direction={"column"} gap={"size-100"}>
       <Heading level={4}>
-        Se vuoi aggiungere le foto in una cartella specifica o taggarle selezionale,
-        altrimenti verranno aggiunte nella cartella principale così come sono.
+        Se vuoi aggiungere le foto in una cartella specifica o taggarle
+        selezionale, altrimenti verranno aggiunte nella cartella principale così
+        come sono.
       </Heading>
-      <ListaFoto callSetFilesToUpload={props.callSetFilesToUpload}/>
+      <ListaFoto
+        callSetFilesToUpload={props.callSetFilesToUpload}
+        availableTags={props.availableTags}
+      />
     </Flex>
   );
 }
