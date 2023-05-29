@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ActionButton,
   ActionGroup,
@@ -19,16 +19,21 @@ import {
   Header,
   Text,
   TextField,
+  DialogContainer,
+  AlertDialog,
+  ProgressCircle,
 } from "@adobe/react-spectrum";
 import { Avatar } from "@react-spectrum/avatar";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ProjectAdd from "@spectrum-icons/workflow/ProjectAdd";
 import { getAuth } from "firebase/auth";
 import CreatePostazioneButton from "../Pulsanti/CreatePostazioneButton";
 import CreateUserButton from "../Pulsanti/CreateUserButton";
 import { key } from "localforage";
 function HeaderPhotofloyd(props) {
+  const [isOpen, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = getAuth();
   const handleAction = (key) => {
     if (key === "profilo") {
@@ -36,6 +41,21 @@ function HeaderPhotofloyd(props) {
     } else {
       auth.signOut();
       navigate("/");
+    }
+  };
+
+  const getSelectedTabKey = () => {
+    const path = location.pathname;
+    if (path.startsWith("/staff")) {
+      return "staff";
+    } else if (path.startsWith("/finanze")) {
+      return "finanze";
+    } else if (path.startsWith("/impostazioni")) {
+      return "impostazioni";
+    } else if (path.startsWith("/aiuto")) {
+      return "aiuto";
+    } else {
+      return "";
     }
   };
   return (
@@ -61,7 +81,7 @@ function HeaderPhotofloyd(props) {
               aria-label="Menu della dashboard generale"
               isEmphasized
               onSelectionChange={(key) => navigate("/" + key)}
-              defaultSelectedKey="postazioni"
+              defaultSelectedKey={getSelectedTabKey()}
             >
               <TabList>
                 <Item key="">Postazioni</Item>

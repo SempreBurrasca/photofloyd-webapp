@@ -48,7 +48,7 @@ function NameFilter(props) {
   };
   return (
     <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
-      <Heading level={5}>Filtra per nome</Heading>
+      <Heading level={5} margin={0}>Filtra per nome</Heading>
       <TextField width={"100%"}/>
     </Flex>
   );

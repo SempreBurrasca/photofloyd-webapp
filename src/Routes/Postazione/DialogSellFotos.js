@@ -113,7 +113,7 @@ function DialogSellFotos(props) {
         });
     }
   };
-  const totalOfProducts = () => {
+  const totalOfProducts = (currency) => {
     let totalPrice = 0;
 
     props.cartFotos.forEach((element) => {
@@ -122,6 +122,12 @@ function DialogSellFotos(props) {
 
     if (paymentCard) {
       totalPrice = totalPrice + 1.5;
+    }
+    if(currency === "USD"){
+      totalPrice = totalPrice + 1.5;
+    }
+    if(currency === "GBP"){
+      totalPrice = totalPrice + 3.5;
     }
     return totalPrice * (1 + tassazione);
   };
@@ -137,6 +143,7 @@ function DialogSellFotos(props) {
       <Heading>Processo di vendita</Heading>
       <Divider />
       <Content>
+        <View>
         {step === 0 && (
           <InitialSellStep
             key={activeFoto.id + "-initial"}
@@ -180,6 +187,7 @@ function DialogSellFotos(props) {
             postazioneId={props.postazioneId}
           />
         )}
+        </View>
       </Content>
       <ButtonGroup>
         <Button variant="secondary" onPress={handleBack}>

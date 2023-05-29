@@ -80,6 +80,7 @@ function CreateUserButton(props) {
                   newUserName,
                   newUserRole
                 );
+                close()
               }}
             >
               Aggiungi Utente

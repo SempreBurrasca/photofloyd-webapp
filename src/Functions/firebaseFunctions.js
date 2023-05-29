@@ -12,6 +12,7 @@ import {
   getFirestore,
   deleteDoc,
   addDoc,
+  listCollections,
   Timestamp,
 } from "firebase/firestore";
 import {
@@ -22,21 +23,26 @@ import {
 
 export const savePhotosToFirebase = async (db, photos, postazioneId) => {
   try {
-    console.log(photos);
     const batch = writeBatch(db);
     const auth = getAuth();
     const user = auth.currentUser;
     photos.photos.forEach((photo) => {
+      // Get the file extension from the MIME type
+      const extension = photo.type.split("/")[1];
+
+      // Add the file extension to the name
+      const fileName = `${photo.name}.${extension}`;
+
       const photoRef = doc(
         db,
         "postazioni",
         postazioneId,
         "fotografie",
-        photo.name
+        fileName
       );
       batch.set(photoRef, {
-        name: photo.name,
-        url: "https://www.photofloyd.cloud/app/upload/" + photo.name,
+        name: fileName,
+        url: "https://www.photofloyd.cloud/app/upload/" + fileName,
         tags: photo.tags,
         label: " ",
         fotografo: {
@@ -552,13 +558,15 @@ export const finalizeSale = async (saleData) => {
         timeout: 2000,
       });
     }
-    
+
     // Add the sale to the postazione's vendite subcollection
     const postazioneRef = doc(db, "postazioni", postazione);
     await setDoc(doc(postazioneRef, "vendite", saleRef.id), { ref: saleRef });
-    
+
     // Add the client to the postazione's clienti subcollection
-    await setDoc(doc(postazioneRef, "clienti", clientRef.id), { ref: clientRef });
+    await setDoc(doc(postazioneRef, "clienti", clientRef.id), {
+      ref: clientRef,
+    });
   } catch (error) {
     console.error("Error finalizing sale: ", error);
     ToastQueue.negative("Error finalizing sale:" + error, {
@@ -567,4 +575,84 @@ export const finalizeSale = async (saleData) => {
   }
 };
 
+export const saveTagsPostazioneToFirebase = async (db, tagsString) => {
+  try {
+    const tags = tagsString.split(",");
+    const batch = writeBatch(db);
+    tags.forEach((tag) => {
+      if (tag !== "") {
+        const tagRef = doc(db, "impostazioni", "tags", "tagsPostazione", tag);
+        batch.set(tagRef, { name: tag });
+      }
+    });
+    await batch.commit();
+    ToastQueue.positive("Tags salvati con successo", {
+      timeout: 2000,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare i tag" + error, {
+      timeout: 2000,
+    });
+  }
+};
+export const deleteFolderByName = async (postazioneId, folderName) => {
+  try {
+    const db = getFirestore();
+    const folderRef = doc(
+      db,
+      "postazioni",
+      postazioneId,
+      "cartelle",
+      folderName
+    );
 
+    await deleteDoc(folderRef);
+
+    ToastQueue.positive("Folder deleted successfully", {
+      timeout: 500,
+    });
+  } catch (error) {
+    console.log(error);
+    ToastQueue.negative("Error deleting folder: " + error, {
+      timeout: 1000,
+    });
+  }
+};
+
+export const saveTaxToFirebase = async (db, tax) => {
+  try {
+    const productRef = doc(db, "tasse", tax.id);
+    await setDoc(productRef, tax);
+    ToastQueue.positive("Tassa salvato con successo", {
+      timeout: 500,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare la tassa" + error, {
+      timeout: 500,
+    });
+  }
+};
+
+export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
+  try {
+    console.log(tagsString, postId);
+    const db = getFirestore();
+    const tags = tagsString.split(",");
+    const postazioneRef = doc(db, 'postazioni', postId, 'impostazioni', 'tags');
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      console.log('exists');
+      await updateDoc(postazioneRef, { tagDisponibili: tags });
+    } else {
+      console.log('not exists');
+      await setDoc(postazioneRef, { tagDisponibili: tags });
+    }
+    ToastQueue.positive("Tags salvati con successo", {
+      timeout: 500,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare i tag" + error, {
+      timeout: 500,
+    });
+  }
+};

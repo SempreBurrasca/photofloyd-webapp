@@ -42,7 +42,7 @@ export const saveEditedPhoto = async (
       name: imageObject.name,
       uid: imageObject.fullName,
       url: "https://www.photofloyd.cloud/app/upload/" + imageObject.fullName,
-      designState: designState,
+      //designState: designState,
       timestamp: Timestamp.now(),
       // Add any additional data here
     };

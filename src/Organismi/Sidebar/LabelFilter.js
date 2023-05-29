@@ -47,7 +47,7 @@ function LabelFilter(props) {
   };
   return (
     <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
-      <Heading level={5}>Filtra per segno</Heading>
+      <Heading level={5} margin={0}>Filtra per segno</Heading>
       <CheckboxGroup value={selected} onChange={filterFotos}>
         <Checkbox key={"Check"} value={"Check"}>
           <Checkmark />

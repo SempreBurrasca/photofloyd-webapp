@@ -9,39 +9,43 @@ import {
 import { ToastQueue } from "@react-spectrum/toast";
 import { getAuth } from "firebase/auth";
 
-export const getUserPostazioni = async (USER_ID) => {
+export const getUserPostazioni = (USER_ID, callback) => {
   try {
     const db = getFirestore();
-    const userRef = await doc(db, "users", USER_ID);
-    const userDoc = await getDoc(userRef);
-    const userData = userDoc.data();
-    console.log(userData);
-    if (userData.permessi[0] || userData.permessi[1]) {
-      // Get all postazioni
-      const postazioniRef = collection(db, "postazioni");
-      const postazioniSnapshot = await getDocs(postazioniRef);
-      const postazioniList = postazioniSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return postazioniList;
-    } else {
-      // Get only the user's postazioni
-      const userPostazioniRef = collection(userRef, "postazioni");
-      const userPostazioniSnapshot = await getDocs(userPostazioniRef);
-      const postazioniList = [];
-      for (const docP of userPostazioniSnapshot.docs) {
-        const postazioneRef = doc(db, "postazioni", docP.id);
-        const postazioneDoc = await getDoc(postazioneRef);
+    const userRef = doc(db, "users", USER_ID);
 
-        postazioniList.push({ id: postazioneDoc.id, ...postazioneDoc.data() });
+    // Get user data
+    getDoc(userRef).then((userDoc) => {
+      const userData = userDoc.data();
+
+      if (userData.permessi[0] || userData.permessi[1]) {
+        // Listen for real-time updates to all postazioni
+        const postazioniRef = collection(db, "postazioni");
+        onSnapshot(postazioniRef, (postazioniSnapshot) => {
+          const postazioniList = postazioniSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          callback(postazioniList);
+        });
+      } else {
+        // Listen for real-time updates to the user's postazioni
+        const userPostazioniRef = collection(userRef, "postazioni");
+        onSnapshot(userPostazioniRef, (userPostazioniSnapshot) => {
+          const postazioniList = [];
+          userPostazioniSnapshot.forEach((docP) => {
+            const postazioneRef = doc(db, "postazioni", docP.id);
+            getDoc(postazioneRef).then((postazioneDoc) => {
+              postazioniList.push({
+                id: postazioneDoc.id,
+                ...postazioneDoc.data(),
+              });
+              callback(postazioniList);
+            });
+          });
+        });
       }
-      ToastQueue.positive("Postazioni recuperate con successo", {
-        timeout: 1000,
-      });
-      console.log(postazioniList);
-      return postazioniList;
-    }
+    });
   } catch (error) {
     console.log(error);
     ToastQueue.negative("Errore nel recuperare le postazioni " + error, {
@@ -109,10 +113,10 @@ export const getSalesByPostazione = async (postazione) => {
     const saleRef = doc.data().ref;
     const saleDoc = await getDoc(saleRef);
     const saleData = saleDoc.data();
-    
+
     // Add the sale ID
     saleData.id = saleDoc.id;
-    
+
     // Retrieve the client data
     const clientRef = saleData.cliente;
     const clientDoc = await getDoc(clientRef);
@@ -121,8 +125,85 @@ export const getSalesByPostazione = async (postazione) => {
     const fotografoRef = saleData.fotografo;
     const fotografoDoc = await getDoc(fotografoRef);
     saleData.fotografo = fotografoDoc.data();
-    
+
     sales.push(saleData);
   }
   return sales;
+};
+
+export const getTagsPostazioneFromFirebase = async () => {
+  try {
+    const db = getFirestore();
+    const tags = [];
+    const querySnapshot = await getDocs(
+      collection(db, "impostazioni", "tags", "tagsPostazione")
+    );
+    querySnapshot.forEach((doc) => {
+      tags.push({ id: doc.data().name, name: doc.data().name });
+    });
+    return tags;
+  } catch (error) {
+    console.error("Error getting tags from the Database: ", error);
+  }
+};
+
+export const getAllSales = (callback) => {
+  const db = getFirestore();
+  const unsubscribe = onSnapshot(
+    collection(db, "vendite"),
+    async (querySnapshot) => {
+      const sales = [];
+      for (const doc of querySnapshot.docs) {
+        const saleDoc = doc;
+        const saleData = doc.data();
+
+        // Add the sale ID
+        saleData.id = saleDoc.id;
+
+        // Retrieve the client data
+        const clientRef = saleData.cliente;
+        const clientDoc = await getDoc(clientRef);
+        saleData.cliente = clientDoc.data();
+
+        // Retrieve the fotografo data
+        const fotografoRef = saleData.fotografo;
+        const fotografoDoc = await getDoc(fotografoRef);
+        saleData.fotografo = fotografoDoc.data();
+
+        sales.push(saleData);
+      }
+      callback(sales);
+    }
+  );
+
+  // Return the unsubscribe function so that the caller can stop listening for changes
+  return unsubscribe;
+};
+
+export const getTasseDocuments = async () => {
+  const db = getFirestore();
+  const tasseCollection = collection(db, "tasse");
+  const querySnapshot = await getDocs(tasseCollection);
+  const documents = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  return documents;
+};
+
+export const getTagsFromSettingsPostazione = async (postId) => {
+  try {
+    const db = getFirestore();
+    const postazioneRef = doc(db, 'postazioni', postId, 'impostazioni', 'tags');
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      const data = docSnapshot.data();
+      const tags = data.tagDisponibili;
+      return tags;
+    } else {
+      
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };

@@ -56,7 +56,7 @@ function InitialSellStep(props) {
     setActiveFoto,
     addToCart,
   } = props;
-
+  const navigate = useNavigate();
   useEffect(() => {}, []);
 
   const handleAction = (key) => {
@@ -69,7 +69,7 @@ function InitialSellStep(props) {
     } else if (key === "edit") {
       setStep(3);
     } else {
-      window.open(activeFoto.data.url, "_blank");
+      window.open(process.env.PUBLIC_URL + "/app#/client-view", "_blank");//usare navigate per dare la route
     }
   };
   const formatEditSelected = () => {
@@ -90,8 +90,8 @@ function InitialSellStep(props) {
   };
   return (
     <Flex direction={"column"} gap={"size-125"}>
-      <Flex justifyContent={"space-between"}>
-        <Flex direction={"column"} gap={"size-100"}>
+      <Flex justifyContent={"space-evenly"} gap={"size-150"}>
+        <Flex direction={"column"} gap={"size-100"} flex={1}>
           <Heading level={4}>Prodotti</Heading>
 
           <ProductsButton
@@ -104,7 +104,7 @@ function InitialSellStep(props) {
             isSelectedEdit={isSelectedEdit}
           />
         </Flex>
-        <Flex direction={"column"} gap={"size-115"}>
+        <Flex direction={"column"} gap={"size-115"} flex={5}>
           <Fotografia
             key={activeFoto.id}
             foto={activeFoto}
@@ -146,7 +146,7 @@ function InitialSellStep(props) {
       <View margin={"size-125"} overflow={"auto"} padding={"size-125"}>
         <Flex gap="size-100">
           {selectedFotos.map((foto) => (
-            <div onClick={() => setActiveFoto(foto)}>
+            <div key={foto.id + "-" + makeId(4)} onClick={() => setActiveFoto(foto)}>
               <View
                 key={foto.id + "-" + makeId(4)}
                 flex={1}

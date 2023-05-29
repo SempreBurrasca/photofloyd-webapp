@@ -30,10 +30,10 @@ const auth = getAuth(app);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-    <Provider theme={defaultTheme} colorScheme="light">
-      <ToastContainer/>
-      <App db={db} />
-    </Provider>
+  <Provider theme={defaultTheme} colorScheme="light">
+    <ToastContainer />
+    <App db={db} />
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -24,6 +24,10 @@ import { TagGroup } from "@react-spectrum/tag";
 import "./style.scss";
 import { onlyUnique, makeId } from "../../Functions/logicArray";
 import { ToastQueue } from "@react-spectrum/toast";
+import {
+  getTags,
+  getTagsPostazioneFromFirebase,
+} from "../../Functions/firebaseGetFunctions";
 
 function CreatePostazioneButton(props) {
   const navigate = useNavigate();
@@ -34,23 +38,9 @@ function CreatePostazioneButton(props) {
   let [tagSelected, setTagSelected] = React.useState([]);
 
   const recuperaTag = async () => {
-    const docRef = doc(props.db, "impostazioni", "tag");
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      let arr = [];
-      docSnap.data().postazioni.forEach((element, index) => {
-        arr.push({
-          id: element + "-" + index,
-          name: element,
-        });
-      });
-      setNewPostazioneTag(arr);
-      console.log("Tag recuperati con successo");
-    } else {
-      // docSnap.data() will be undefined in this case
-      console.log("Non c'è il documento da recuperare (impostazioni=>tag)'");
-    }
+    getTagsPostazioneFromFirebase().then((_tags) => {
+      setNewPostazioneTag(_tags);
+    });
   };
   const resetState = () => {
     setNewPostazioneName("");
@@ -67,7 +57,7 @@ function CreatePostazioneButton(props) {
     console.log(newArr.filter(onlyUnique));
   };
   //manca da completare la logica di aggiunta del team
-  const creaPostazione = async () => {
+  const creaPostazione = async (close) => {
     var idPostazione = newPostazioneName.replaceAll(" ", "-") + "-" + makeId(5);
     var user = auth.currentUser;
     console.log(user);
@@ -92,16 +82,25 @@ function CreatePostazioneButton(props) {
                 tag: tagSelected,
               }
             );
-            ToastQueue.positive("Postazione creata con successo",{timeout:2000})
+            ToastQueue.positive("Postazione creata con successo", {
+              timeout: 2000,
+            });
+            close()
           })
           .catch((e) => {
             console.log("errore nella creazione dello users=>", e);
-            ToastQueue.negative("C'è stato un errore con la creazione della postazione, nell'aggiunta dello staff",{timeout:2000})
+            ToastQueue.negative(
+              "C'è stato un errore con la creazione della postazione, nell'aggiunta dello staff",
+              { timeout: 2000 }
+            );
           });
       })
       .catch((e) => {
         console.log("errore=>", e);
-        ToastQueue.negative("C'è stato un errore con la creazione della postazione",{timeout:2000})
+        ToastQueue.negative(
+          "C'è stato un errore con la creazione della postazione",
+          { timeout: 2000 }
+        );
       });
   };
   return (
@@ -168,7 +167,7 @@ function CreatePostazioneButton(props) {
             <Button variant="secondary" onPress={close}>
               Annulla
             </Button>
-            <Button variant="accent" onPress={creaPostazione}>
+            <Button variant="accent" onPress={()=>creaPostazione(close)}>
               Crea Postazione
             </Button>
           </ButtonGroup>

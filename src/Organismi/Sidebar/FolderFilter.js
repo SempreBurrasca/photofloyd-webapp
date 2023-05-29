@@ -27,7 +27,13 @@ import {
   Well,
 } from "@adobe/react-spectrum";
 
-import { getCartelle, getPhotoNames } from "../../Functions/firebaseFunctions";
+import {
+  deleteFolderByName,
+  getCartelle,
+  getPhotoNames,
+} from "../../Functions/firebaseFunctions";
+import Delete from "@spectrum-icons/workflow/Delete";
+import { makeId } from "../../Functions/logicArray";
 
 function FolderFilter(props) {
   let [selected, setSelected] = React.useState([]);
@@ -37,29 +43,51 @@ function FolderFilter(props) {
   }, []);
   const setFilteredPhotos = props.setFilteredPhotos;
   const filterFotos = async (target) => {
-    if(target.length===0){
-      setFilteredPhotos([])
+    if (target.length === 0) {
+      setFilteredPhotos([]);
       await setSelected(target);
-    }else{
-      await getPhotoNames(props.db,target,props.postazioneId).then((e)=>{setFilteredPhotos(props.filteredPhotos.concat(e))})
+    } else {
+      await getPhotoNames(props.db, target, props.postazioneId).then((e) => {
+        setFilteredPhotos(props.filteredPhotos.concat(e));
+      });
       await setSelected(target);
     }
-   
+  };
+  const handleDelete = async (name) => {
+    deleteFolderByName(props.postazioneId, name);
   };
   return (
-    <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
+    <Flex
+      direction={"column"}
+      gap={"size-100"}
+      alignItems={"start"}
+      width={"100%"}
+    >
       <Heading level={5}>Filtra per cartella</Heading>
       <CheckboxGroup value={selected} onChange={filterFotos}>
         {folders &&
           folders.length > 0 &&
           folders.map((folder) => (
-            <Checkbox key={folder.data.name} value={folder.data.name}>
-              {folder.data.name}
-            </Checkbox>
+            <Flex key={makeId(3)} justifyContent={"space-between"}>
+              <Checkbox
+                key={folder.data.name}
+                value={folder.data.name}
+                flex={1}
+              >
+                {folder.data.name}
+              </Checkbox>
+              <ActionButton
+                onPress={() => handleDelete(folder.data.name)}
+                isQuiet
+                flex={0.2}
+              >
+                <Delete />
+              </ActionButton>
+            </Flex>
           ))}
       </CheckboxGroup>
     </Flex>
   );
 }
 
-export default FolderFilter;
+export default React.memo(FolderFilter);

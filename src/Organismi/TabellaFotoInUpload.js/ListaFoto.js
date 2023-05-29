@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   ActionButton,
   Button,
@@ -13,6 +13,12 @@ import {
   useAsyncList,
   View,
   Divider,
+  ProgressCircle,
+  DialogContainer,
+  ProgressBar,
+  Dialog,
+  Header,
+  Content,
 } from "@adobe/react-spectrum";
 import {
   getImagesFromIndexedDB,
@@ -24,6 +30,7 @@ import { makeId } from "../../Functions/logicArray";
 import { getImagesFromFileInput } from "../../Functions/uploadFileToServer";
 import { containsObject } from "../../Functions/tools";
 import { getTagsFromFirebase } from "../../Functions/firebaseFunctions";
+import { StateContext } from "../../Context/stateContext";
 
 function ListaFoto(props) {
   const [listPhotos, setList] = useState([]);
@@ -33,6 +40,7 @@ function ListaFoto(props) {
   const [selectedFolders, setSelectedFolders] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedTagsFoto, setSelectedTagsFoto] = useState([]);
+  const { state, dispatch } = useContext(StateContext);
   const availableTags = props.availableTags;
   React.useEffect(() => {
     document.querySelector("#files").addEventListener("change", (event) => {
@@ -62,10 +70,9 @@ function ListaFoto(props) {
   };
   //manca da completare la logica che impedisca duplicati
   const aggiungiTagFoto = (item) => {
-    console.log(item);
-    var arr = selectedTagsFoto;
-    arr.push({ id: item, name: item });
-    setSelectedTagsFoto(arr);
+    if (!selectedTagsFoto.some((tag) => tag.name === item)) {
+      setSelectedTagsFoto([...selectedTagsFoto, { id: item, name: item }]);
+    }
   };
 
   const aggiungiTagListPhotos = async () => {
@@ -82,16 +89,17 @@ function ListaFoto(props) {
 
   //manca da completare la logica che impedisca duplicati
   const aggiungiTag = (item) => {
-    setSelectedTags(selectedTags.concat({ id: item, name: item }));
+    if (!selectedTags.some((tag) => tag.name === item)) {
+      console.log(item, selectedTags);
+      setSelectedTags([...selectedTags, { id: item, name: item }]);
+    }
   };
-  //manca da completare la logica di rimozione del tag
   const rimuoviItem = (item) => {
-    console.log(item);
+    setSelectedTags(selectedTags.filter((tag) => tag.name !== item.name));
   };
   const aggiungiTagFolders = () => {
     if (selectedFolders.size === 1) {
       const folderName = Array.from(selectedFolders)[0];
-      console.log(folderName);
       setFoldersCreated((prevFoldersCreated) =>
         prevFoldersCreated.map((folder) =>
           folder.name === folderName
@@ -113,6 +121,24 @@ function ListaFoto(props) {
   };
   return (
     <Flex direction="column" gap={"size-100"}>
+      <DialogContainer isDismissable={false}>
+        {state.isUpload && (
+          <Dialog>
+            <Heading>Upload in corso</Heading>
+            <Header>Perfavore Attendere</Header>
+            <Divider />
+            <Content>
+              <ProgressBar
+                label={state.statusUpload.label}
+                minValue={0}
+                maxValue={state.statusUpload.max}
+                value={state.statusUpload.current}
+                width={"100%"}
+              />
+            </Content>
+          </Dialog>
+        )}
+      </DialogContainer>
       <ActionButton
         onPress={() => {
           setSelectedKeys([]);
@@ -129,7 +155,6 @@ function ListaFoto(props) {
         selectedKeys={selectedKeys}
         onSelectionChange={(selection) => {
           setSelectedKeys(selection);
-          console.log(selectedKeys);
         }}
       >
         {(item) => (
@@ -254,7 +279,7 @@ function ListaFoto(props) {
               onRemove={rimuoviItem}
             >
               {(item, index) => (
-                <Item key={item.id + "-" + makeId(3)}>{item.name}</Item>
+                <Item key={item.id + "-" + makeId(5)}>{item.name}</Item>
               )}
             </TagGroup>
           )}

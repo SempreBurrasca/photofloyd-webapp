@@ -50,7 +50,7 @@ function ClientFilter(props) {
   };
   return (
     <Flex direction={"column"} gap={"size-100"} alignItems={"start"}>
-      <Heading level={5}>Filtra per Cliente</Heading>
+      <Heading level={5} margin={0}>Filtra per Cliente</Heading>
       <CheckboxGroup value={selected} onChange={filterFotos}>
         {clients &&
           clients.length > 0 &&

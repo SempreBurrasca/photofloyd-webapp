@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-import { Flex, View } from "@adobe/react-spectrum";
+import { Flex, View, Well } from "@adobe/react-spectrum";
 
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { ToastQueue } from "@react-spectrum/toast";
 
 import CardFoto from "./CardFoto";
+import { StateContext } from "../../Context/stateContext";
 
 function GrigliaFotografie(props) {
+  const { state, dispatch } = useContext(StateContext);
   const setSelectedFotos = props.setSelectedFotos;
   let selectedFotos = props.selectedFotos;
   const [fotografie, setFotografie] = useState([]);
@@ -22,7 +24,12 @@ function GrigliaFotografie(props) {
 
   useEffect(() => {
     setSelectedFotos([]);
-    getFotografie();
+    if (state.fotoPostazione.length === 0) {
+      console.log("getFotografie")
+      getFotografie();
+    }else{
+      setFotografie(state.fotoPostazione);
+    }
     observer.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -39,10 +46,9 @@ function GrigliaFotografie(props) {
     return () => {
       if (observer.current) observer.current.disconnect();
     };
-  }, []);
+  }, [state.fotoPostazione]);
 
   const getFotografie = () => {
-    console.log(props.db, "postazioni", props.postazioneId, "fotografie");
     const collectionRef = collection(
       props.db,
       "postazioni",
@@ -57,11 +63,12 @@ function GrigliaFotografie(props) {
           data: doc.data(),
         });
       });
-      setFotografie(arr);
+
       if (arr.length > 0) {
+        dispatch({ type: "SET_FOTO_POSTAZIONE", fotoPostazione: arr });
         ToastQueue.positive(
           "Recuperate " + arr.length + " fotografie con successo",
-          { timeout: 2000 }
+          { timeout: 200 }
         );
       }
     });
@@ -81,7 +88,7 @@ function GrigliaFotografie(props) {
   };
 
   return (
-    <View padding="size-200" overflow="auto" height="60vh">
+    <View padding="size-100" overflow="auto" height="55vh">
       <Flex
         alignItems="start"
         justifyContent="start"
@@ -89,6 +96,12 @@ function GrigliaFotografie(props) {
         wrap
         direction="row"
       >
+        {fotografie.length === 0 && (
+          <Well>
+            Non sono state ancora caricate le fotografie, caricale ora
+            utilizzando il pulsante in alto a destra.
+          </Well>
+        )}
         {fotografie.map((foto) => (
           <div
             key={foto.id}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
@@ -19,6 +19,7 @@ import {
   Header,
   Heading,
   Item,
+  Switch,
   TabList,
   TabPanels,
   Tabs,
@@ -43,6 +44,7 @@ import {
 import { uploadToIndexedDB } from "../../Functions/IndexedDB";
 import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
 import {
+  archivePostazione,
   getTagsFromFirebase,
   savePhotosToFirebase,
 } from "../../Functions/firebaseFunctions";
@@ -58,9 +60,15 @@ import FolderUser from "@spectrum-icons/workflow/FolderUser";
 import ClientFilter from "../../Organismi/Sidebar/ClientFilter";
 import DialogEditFoto from "./DialogEditFoto";
 import TabellaVenditePostazione from "../../Componenti/Tabelle/TabellaVenditePostazione";
-import { getSalesByPostazione } from "../../Functions/firebaseGetFunctions";
+import {
+  getSalesByPostazione,
+  getTagsFromSettingsPostazione,
+} from "../../Functions/firebaseGetFunctions";
+import PostazioneImpostazioni from "./PostazioneImpostazioni";
+import { StateContext } from "../../Context/stateContext";
 
 function Postazione(props) {
+  const { state, dispatch } = useContext(StateContext);
   const [filesToUpload, setFilesToUpload] = useState({
     photos: [],
     folders: [],
@@ -78,6 +86,7 @@ function Postazione(props) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [fotoToEdit, setFotoToEdit] = useState({});
   const [vendite, setVendite] = useState([]);
+  const [isWebkitDirectory, setIsWebkitDirectory] = useState(false);
   React.useEffect(() => {
     setSelectedFotos([]);
     setCartFotos([]);
@@ -92,9 +101,22 @@ function Postazione(props) {
           timeout: 2000,
         });
       });
-    getTagsFromFirebase(props.db).then((tags) => {
-      setAvailableTags(tags);
-      console.log(tags);
+    getTagsFromSettingsPostazione(postazioneId).then((__tags) => {
+      if (__tags) {
+        let arr = [];
+        __tags.forEach((t) => {
+          arr.push({
+            id: t.replace(/\s+/g, ""),
+            name: t.replace(/\s+/g, ""),
+          });
+        });
+        setAvailableTags(arr);
+        console.log("Tag dalle impostazioni=>", arr);
+      } else {
+        getTagsFromFirebase(props.db).then((tags) => {
+          setAvailableTags(tags);
+        });
+      }
     });
   }, []);
   useEffect(() => {
@@ -118,6 +140,7 @@ function Postazione(props) {
       return "Errore nel caricamento del documento: " + error;
     }
   };
+
   //preparo i file per poi caricarli
   const callSetFilesToUpload = async (files) => {
     try {
@@ -136,12 +159,12 @@ function Postazione(props) {
     <LayoutConHeader>
       <Grid
         areas={["sidebar divider content"]}
-        columns={["1fr", "0.03fr", "3fr"]}
+        columns={["1fr", "0.03fr", "8fr"]}
         gap="size-100"
-        maxHeight="80vh"
+   
         margin={10}
       >
-        <View gridArea="sidebar" overflow={"auto"} maxHeight={"100%"}>
+        <View gridArea="sidebar" overflow={"hidden"}>
           <Flex direction="column" gap="size-200">
             <Flex direction="column" gap="size-100">
               {selectedFotos.length > 0 ? (
@@ -171,7 +194,6 @@ function Postazione(props) {
                 <DialogTrigger>
                   <Item key="addTag">
                     <Label />
-                    <Text>Aggiungi Tag</Text>
                   </Item>
                   {(close) => (
                     <DialogAddTag
@@ -183,7 +205,7 @@ function Postazione(props) {
                     />
                   )}
                 </DialogTrigger>
-                <DialogTrigger>
+                {/*<DialogTrigger>
                   <Item key="addToFolder">
                     <Folder />
                     <Text>Aggiungi a cartella</Text>
@@ -197,11 +219,10 @@ function Postazione(props) {
                       setSelectedFotos={(e) => setSelectedFotos(e)}
                     />
                   )}
-                </DialogTrigger>
+                </DialogTrigger>*/}
                 <DialogTrigger>
                   <Item key="addToClient">
                     <FolderUser />
-                    <Text>Aggiungi a cliente</Text>
                   </Item>
                   {(close) => (
                     <DialogAddToClient
@@ -216,13 +237,11 @@ function Postazione(props) {
 
                 <Item key="sellFotos">
                   <Shop />
-                  <Text>Vendi</Text>
                 </Item>
 
                 <DialogTrigger>
                   <Item key="deleteFotos">
                     <Delete />
-                    <Text>Elimina</Text>
                   </Item>
                   {(close) => (
                     <DialogDeleteFotos
@@ -250,9 +269,9 @@ function Postazione(props) {
               )}
             </Flex>
             <Divider size="M" />
-            <View overflow={"auto"}>
+            <View overflow={"auto"} maxHeight={"50vh"} paddingBottom={50}>
               <Flex direction="column" gap="size-100">
-                <Heading>Filtra e Ricerca</Heading>
+                <Heading margin={0}>Filtra e Ricerca</Heading>
                 <NameFilter
                   db={props.db}
                   postazioneId={postazioneId}
@@ -260,12 +279,12 @@ function Postazione(props) {
                   setFilteredPhotos={setFilteredPhotos}
                 />
 
-                <FolderFilter
+                {/*<FolderFilter
                   db={props.db}
                   postazioneId={postazioneId}
                   filteredPhotos={filteredPhotos}
                   setFilteredPhotos={setFilteredPhotos}
-                />
+              />*/}
                 <ClientFilter
                   db={props.db}
                   postazioneId={postazioneId}
@@ -285,13 +304,9 @@ function Postazione(props) {
 
         <Divider orientation="vertical" size="M" />
 
-        <View gridArea="content" overflow={"auto"} maxHeight={"100%"}>
+        <View gridArea="content" overflow={"auto"} >
           <Flex direction="column" gap="size-200" justifyContent={"center"}>
-            <Flex
-              gap="size-100"
-              alignItems={"center"}
-              justifyContent="space-between"
-            >
+            <Flex gap="size-200" alignItems={"center"} justifyContent="start">
               {openEditDialog && (
                 <DialogContainer type="fullscreen">
                   <DialogEditFoto
@@ -304,11 +319,11 @@ function Postazione(props) {
                 </DialogContainer>
               )}
               <Flex direction="column" gap="size-100">
-                <Flex gap="size-100" justifyContent="start">
+                {/*<Flex gap="size-100" justifyContent="start">
                   <a>Home{">"} </a>
                   <span>{postazione && postazione.name}</span>
-                </Flex>
-                <h1>{postazione && postazione.name}</h1>
+                </Flex>*/}
+                <h2>{postazione && postazione.name}</h2>
                 {postazione && (
                   <TagGroup items={postazione.tag} aria-label="Tag ">
                     {(item, index) => (
@@ -319,7 +334,7 @@ function Postazione(props) {
               </Flex>
               <DialogTrigger>
                 <ActionButton>
-                  <ImageAdd /> Carica Foto
+                  <ImageAdd /> IMPORTA FOTO
                 </ActionButton>
                 {(close) => (
                   <Dialog>
@@ -332,14 +347,27 @@ function Postazione(props) {
                         Seleziona la cartella che vuoi caricare dal tuo
                         computer.
                       </Heading>
-                      <input
-                        type="file"
-                        name="photos[]"
-                        id="files"
-                        multiple="multiple"
-                        webkitdirectory="true"
-                        accept="image/*"
-                      />
+                      <Switch onChange={setIsWebkitDirectory}>
+                        Carica cartella
+                      </Switch>
+                      {isWebkitDirectory ? (
+                        <input
+                          type="file"
+                          name="photos[]"
+                          id="files"
+                          multiple="multiple"
+                          webkitdirectory="true"
+                          accept="image/*"
+                        />
+                      ) : (
+                        <input
+                          type="file"
+                          name="photos[]"
+                          id="files"
+                          multiple="multiple"
+                          accept="image/*"
+                        />
+                      )}
                       <TabellaFotoInUpload
                         availableTags={availableTags}
                         callSetFilesToUpload={callSetFilesToUpload}
@@ -353,14 +381,17 @@ function Postazione(props) {
                         variant="accent"
                         isDisabled={filesToUpload.photos.length === 0}
                         onPress={() =>
-                          uploadFotoFinal(filesToUpload).then((data) => {
-                            savePhotosToFirebase(
-                              props.db,
-                              filesToUpload,
-                              postazioneId
-                            );
-                            close();
-                          })
+                          uploadFotoFinal(filesToUpload, dispatch).then(
+                            (data) => {
+                              savePhotosToFirebase(
+                                props.db,
+                                filesToUpload,
+                                postazioneId
+                              ).then(() => {
+                                close();
+                              });
+                            }
+                          )
                         }
                       >
                         Conferma
@@ -373,7 +404,6 @@ function Postazione(props) {
             <Tabs
               aria-label="Menu della dashboard generale"
               isEmphasized
-              onSelectionChange={(key) => console.log(key)}
               defaultSelectedKey="Fotografie"
             >
               <TabList>
@@ -396,7 +426,10 @@ function Postazione(props) {
                   />
                 </Item>
                 <Item key="Impostazioni">
-                  <span>Impostazioni</span>
+                  <PostazioneImpostazioni
+                    db={props.db}
+                    postazioneId={postazioneId}
+                  />
                 </Item>
                 <Item key="Finanze">
                   <TabellaVenditePostazione vendite={vendite} />

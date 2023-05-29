@@ -27,12 +27,26 @@ import DialogEditUser from "../../Organismi/Dialogs/DialogEditUser";
 import { makeId } from "../../Functions/logicArray";
 import Info from "@spectrum-icons/workflow/Info";
 import DialogInfoVendita from "../../Organismi/Dialogs/DialogInfoVendita";
-function TabellaVenditePostazione(props) {
+import { Timestamp } from "firebase/firestore";
+function TabellaVendite(props) {
   const navigate = useNavigate();
   const { vendite } = props;
-  useEffect(() => {}, [vendite]);
+  useEffect(() => {
+    console.log(vendite);
+  }, [vendite]);
+
+  const formatDate = (data) => {
+    const timestamp = new Timestamp(data.seconds, data.nanoseconds);
+    const date = timestamp.toDate();
+    return date.toLocaleDateString();
+  };
   return (
-    <Flex direction={"column"} alignItems="center" gap={"size-200"}>
+    <Flex
+      direction={"column"}
+      alignItems="center"
+      gap={"size-200"}
+      width={"90%"}
+    >
       {vendite.length > 0 ? (
         <TableView
           height="100%"
@@ -40,9 +54,16 @@ function TabellaVenditePostazione(props) {
           aria-label="Example table with static contents"
         >
           <TableHeader>
-            <Column allowsResizing align="start">
+            <Column allowsResizing align="end" width={100}>
+              Data
+            </Column>
+            <Column allowsResizing align="start" width={100}>
               ID
             </Column>
+            <Column allowsResizing align="start">
+              Postazione
+            </Column>
+
             <Column allowsResizing align="start">
               Cliente
             </Column>
@@ -59,7 +80,10 @@ function TabellaVenditePostazione(props) {
           <TableBody>
             {vendite.map((vendita) => (
               <Row key={makeId(4) + "-" + vendita.id}>
+                <Cell align="end">{formatDate(vendita.data)}</Cell>
                 <Cell align="start">{vendita.id}</Cell>
+                <Cell align="start">{vendita.postazione}</Cell>
+
                 <Cell align="start">{vendita.cliente.name}</Cell>
                 <Cell align="start">{vendita.fotografo.displayName}</Cell>
                 <Cell align="start">€{vendita.totale}</Cell>
@@ -86,4 +110,4 @@ function TabellaVenditePostazione(props) {
   );
 }
 
-export default React.memo(TabellaVenditePostazione);
+export default TabellaVendite;
