@@ -28,13 +28,15 @@ function ProductAddForm(props) {
       padding={"size-350"}
       width={"100%"}
     >
-      {prodotti.map((prodotto, index) => (
-        <SingleFormProduct
-          key={prodotto.id}
-          prodotto={prodotto}
-          db={props.db}
-        />
-      ))}
+      <Flex direction={"column"} gap={"size-500"}>
+        {prodotti.map((prodotto, index) => (
+          <SingleFormProduct
+            key={prodotto.id}
+            prodotto={prodotto}
+            db={props.db}
+          />
+        ))}
+      </Flex>
     </View>
   );
 }

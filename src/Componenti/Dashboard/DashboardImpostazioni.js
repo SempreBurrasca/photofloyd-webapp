@@ -66,7 +66,7 @@ function DashboardImpostazioni(props) {
     setTaxes((prevTaxes) => [...prevTaxes, newTax]);
   };
   return (
-    <View padding={10} paddingBottom={50}>
+    <View padding={10} paddingBottom={50} backgroundColor="gray-200">
       <Flex
         direction={"column"}
         minHeight="100vh"
