@@ -9,6 +9,11 @@ import { ToastQueue } from "@react-spectrum/toast";
 
 import CardFoto from "./CardFoto";
 import { StateContext } from "../../Context/stateContext";
+import {
+  clientFilter,
+  filterPhotos,
+  tagsFilter,
+} from "../../Functions/filterFunctions";
 
 function GrigliaFotografie(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -25,9 +30,8 @@ function GrigliaFotografie(props) {
   useEffect(() => {
     setSelectedFotos([]);
     if (state.fotoPostazione.length === 0) {
-      console.log("getFotografie")
       getFotografie();
-    }else{
+    } else {
       setFotografie(state.fotoPostazione);
     }
     observer.current = new IntersectionObserver(
@@ -48,6 +52,14 @@ function GrigliaFotografie(props) {
     };
   }, [state.fotoPostazione]);
 
+  useEffect(() => {
+    if (state.filters.label) {
+      setFotografie(filterPhotos(state.fotoPostazione, state.filters));
+    } else {
+      setFotografie(filterPhotos(state.fotoPostazione, state.filters));
+    }
+    console.log(state.filters);
+  }, [state.filters]);
   const getFotografie = () => {
     const collectionRef = collection(
       props.db,
@@ -102,6 +114,7 @@ function GrigliaFotografie(props) {
             utilizzando il pulsante in alto a destra.
           </Well>
         )}
+
         {fotografie.map((foto) => (
           <div
             key={foto.id}

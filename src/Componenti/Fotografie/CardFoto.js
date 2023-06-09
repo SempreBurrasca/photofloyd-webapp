@@ -102,7 +102,7 @@ function CardFoto(props) {
             alt="dsadasdas"
             objectFit="contain"
             width="100%"
-            height="200px"
+            height="auto"
           />
         </div>
         <View position={"absolute"} top="10px" left={"10px"}>

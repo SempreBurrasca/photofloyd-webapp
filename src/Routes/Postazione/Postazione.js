@@ -8,7 +8,6 @@ import {
   ActionGroup,
   Button,
   ButtonGroup,
-  CheckboxGroup,
   Content,
   Dialog,
   DialogContainer,
@@ -27,9 +26,7 @@ import {
   View,
   Well,
 } from "@adobe/react-spectrum";
-import Star from "@spectrum-icons/workflow/Star";
 import Label from "@spectrum-icons/workflow/Label";
-import Folder from "@spectrum-icons/workflow/Folder";
 import Shop from "@spectrum-icons/workflow/Shop";
 import Delete from "@spectrum-icons/workflow/Delete";
 import { TagGroup } from "@react-spectrum/tag";
@@ -37,21 +34,14 @@ import { makeId } from "../../Functions/logicArray";
 import ImageAdd from "@spectrum-icons/workflow/ImageAdd";
 import GrigliaFotografie from "../../Componenti/Fotografie/GrigliaFotografie";
 import { ToastQueue } from "@react-spectrum/toast";
-import {
-  saveToBrowserStorage,
-  uploadFotoFinal,
-} from "../../Functions/uploadFileToServer";
-import { uploadToIndexedDB } from "../../Functions/IndexedDB";
+import { uploadFotoFinal } from "../../Functions/uploadFileToServer";
 import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
 import {
-  archivePostazione,
   getTagsFromFirebase,
   savePhotosToFirebase,
 } from "../../Functions/firebaseFunctions";
 import DialogAddTag from "./DialogAddTag";
-import DialogAddToFolder from "./DialogAddToFolder";
 import DialogDeleteFotos from "./DialogDeleteFotos";
-import FolderFilter from "../../Organismi/Sidebar/FolderFilter";
 import LabelFilter from "../../Organismi/Sidebar/LabelFilter";
 import NameFilter from "../../Organismi/Sidebar/NameFilter";
 import DialogSellFotos from "./DialogSellFotos";
@@ -66,6 +56,7 @@ import {
 } from "../../Functions/firebaseGetFunctions";
 import PostazioneImpostazioni from "./PostazioneImpostazioni";
 import { StateContext } from "../../Context/stateContext";
+import TagsFilter from "../../Organismi/Sidebar/TagsFilter";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -161,7 +152,6 @@ function Postazione(props) {
         areas={["sidebar divider content"]}
         columns={["1fr", "0.03fr", "8fr"]}
         gap="size-100"
-   
         margin={10}
       >
         <View gridArea="sidebar" overflow={"hidden"}>
@@ -205,21 +195,6 @@ function Postazione(props) {
                     />
                   )}
                 </DialogTrigger>
-                {/*<DialogTrigger>
-                  <Item key="addToFolder">
-                    <Folder />
-                    <Text>Aggiungi a cartella</Text>
-                  </Item>
-                  {(close) => (
-                    <DialogAddToFolder
-                      close={close}
-                      selectedFotos={selectedFotos}
-                      db={props.db}
-                      postazioneId={postazioneId}
-                      setSelectedFotos={(e) => setSelectedFotos(e)}
-                    />
-                  )}
-                </DialogTrigger>*/}
                 <DialogTrigger>
                   <Item key="addToClient">
                     <FolderUser />
@@ -272,24 +247,19 @@ function Postazione(props) {
             <View overflow={"auto"} maxHeight={"50vh"} paddingBottom={50}>
               <Flex direction="column" gap="size-100">
                 <Heading margin={0}>Filtra e Ricerca</Heading>
-                <NameFilter
-                  db={props.db}
-                  postazioneId={postazioneId}
-                  filteredPhotos={filteredPhotos}
-                  setFilteredPhotos={setFilteredPhotos}
-                />
-
-                {/*<FolderFilter
-                  db={props.db}
-                  postazioneId={postazioneId}
-                  filteredPhotos={filteredPhotos}
-                  setFilteredPhotos={setFilteredPhotos}
-              />*/}
                 <ClientFilter
                   db={props.db}
                   postazioneId={postazioneId}
                   filteredPhotos={filteredPhotos}
                   setFilteredPhotos={setFilteredPhotos}
+                />
+                <TagsFilter
+                  db={props.db}
+                  postazioneId={postazioneId}
+                  filteredPhotos={filteredPhotos}
+                  setFilteredPhotos={setFilteredPhotos}
+                  availableTags={availableTags}
+                  setAvailableTags={setAvailableTags}
                 />
                 <LabelFilter
                   db={props.db}
@@ -304,7 +274,7 @@ function Postazione(props) {
 
         <Divider orientation="vertical" size="M" />
 
-        <View gridArea="content" overflow={"auto"} >
+        <View gridArea="content" overflow={"auto"}>
           <Flex direction="column" gap="size-200" justifyContent={"center"}>
             <Flex gap="size-200" alignItems={"center"} justifyContent="start">
               {openEditDialog && (

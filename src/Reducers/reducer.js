@@ -13,6 +13,13 @@ export const initialState = {
   },
   currentPostazione: null,
   fotoPostazione: [],
+  filters: {
+    tags: false,
+    client: false,
+    label: false,
+    data: false,
+    fotografo: false,
+  },
   clientView: {
     isClientView: false,
     fotos: [],
@@ -57,6 +64,30 @@ export function reducer(state, action) {
       return {
         ...state,
         clientView: action.clientView,
+      };
+    case "SET_FILTER_TAGS":
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          tags: action.tags,
+        },
+      };
+    case "SET_FILTER_CLIENT":
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          client: action.client,
+        },
+      };
+    case "SET_FILTER_LABEL":
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          label: action.label,
+        },
       };
     default:
       return state;

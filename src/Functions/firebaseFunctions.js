@@ -231,9 +231,8 @@ export const getPhotoNames = async (db, folderNames, postazioneId) => {
   }
   return photoNames;
 };
-export const getPhotoNamesByClient = async (db, clientNames, postazioneId) => {
+export const getPhotoNamesByClient = async (db, clientName, postazioneId) => {
   let photoNames = [];
-  for (const clientName of clientNames) {
     const docRef = doc(db, "postazioni", postazioneId, "clienti", clientName);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
@@ -243,7 +242,7 @@ export const getPhotoNamesByClient = async (db, clientNames, postazioneId) => {
     } else {
       console.log("No such document!");
     }
-  }
+  
   return photoNames;
 };
 

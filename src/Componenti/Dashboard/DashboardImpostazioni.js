@@ -130,14 +130,14 @@ function DashboardImpostazioni(props) {
           </Flex>
           <Divider size="S" />
           <Flex direction={"column"} gap={"size-125"} alignItems={"center"}>
-          <Heading level={2}>Tasse</Heading>
+          <Heading level={2}>Commissioni</Heading>
             <Text>
-              Inserisci le tasse che vuoi aggiungere agli ordini nelle tue
+              Inserisci le commissioni che vuoi aggiungere agli ordini nelle tue
               postazioni di vendita.
             </Text>
             {taxes&&<TaxAddForm taxes={taxes} db={props.db} />}
             <ActionButton onPress={addOneTaxPlaceholder}>
-              Aggiungi Tassa
+              Aggiungi Commissione
             </ActionButton>
           </Flex>
         </Flex>
