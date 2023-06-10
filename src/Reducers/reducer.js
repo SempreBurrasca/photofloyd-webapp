@@ -89,6 +89,14 @@ export function reducer(state, action) {
           label: action.label,
         },
       };
+    case "SET_FILTER_DATA":
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          data: action.data,
+        },
+      };
     default:
       return state;
   }

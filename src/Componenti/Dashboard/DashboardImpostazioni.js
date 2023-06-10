@@ -99,11 +99,10 @@ function DashboardImpostazioni(props) {
           </Flex>
           <Flex direction={"column"} gap={"size-100"}>
             <Text>
-              Inserisci i tag che vuoi che siano disponibili nella scelta delle
-              cartelle separati dalla ,
+              Inserisci i tag che vuoi che siano disponibili per l'upload delle foto separati dalla ,
             </Text>
             <TextField
-              label="Tag delle cartelle."
+              label="Tag delle Foto."
               width={"100%"}
               onChange={setTags}
               value={tags}

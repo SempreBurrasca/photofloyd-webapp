@@ -5,6 +5,7 @@
   "homepage": "/app",
   "dependencies": {
     "@adobe/react-spectrum": "^3.25.1",
+    "@internationalized/date": "^3.2.0",
     "@pqina/pintura": "^8.57.9",
     "@pqina/react-pintura": "^9.0.1",
     "@react-spectrum/actionbar": "^3.0.0-rc.0",

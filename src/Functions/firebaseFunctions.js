@@ -43,6 +43,7 @@ export const savePhotosToFirebase = async (db, photos, postazioneId) => {
       batch.set(photoRef, {
         name: fileName,
         url: "https://www.photofloyd.cloud/app/upload/" + fileName,
+        lastModified: photo.lastModified,
         tags: photo.tags,
         label: " ",
         fotografo: {
@@ -233,16 +234,16 @@ export const getPhotoNames = async (db, folderNames, postazioneId) => {
 };
 export const getPhotoNamesByClient = async (db, clientName, postazioneId) => {
   let photoNames = [];
-    const docRef = doc(db, "postazioni", postazioneId, "clienti", clientName);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      docSnap.data().photos.forEach((photoRef) => {
-        photoNames.push(photoRef.id);
-      });
-    } else {
-      console.log("No such document!");
-    }
-  
+  const docRef = doc(db, "postazioni", postazioneId, "clienti", clientName);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    docSnap.data().photos.forEach((photoRef) => {
+      photoNames.push(photoRef.id);
+    });
+  } else {
+    console.log("No such document!");
+  }
+
   return photoNames;
 };
 
@@ -252,7 +253,7 @@ export const saveTagsToFirebase = async (db, tagsString) => {
     const batch = writeBatch(db);
     tags.forEach((tag) => {
       if (tag !== "") {
-        const tagRef = doc(db, "impostazioni", "tags", "tagsCartella", tag);
+        const tagRef = doc(db, "impostazioni", "tags", "tagsFoto", tag);
         batch.set(tagRef, { name: tag });
       }
     });
@@ -270,7 +271,7 @@ export const getTagsFromFirebase = async (db) => {
   try {
     const tags = [];
     const querySnapshot = await getDocs(
-      collection(db, "impostazioni", "tags", "tagsCartella")
+      collection(db, "impostazioni", "tags", "tagsFoto")
     );
     querySnapshot.forEach((doc) => {
       tags.push({ id: doc.data().name, name: doc.data().name });
@@ -436,7 +437,8 @@ export const addPhotosToClients = async (
   db,
   postazioneId,
   clientNames,
-  photos
+  photos,
+  clientInfo
 ) => {
   try {
     const batch = writeBatch(db);
@@ -463,6 +465,7 @@ export const addPhotosToClients = async (
           // La cartella non esiste ancora
           batch.set(clientRef, {
             name: clientName,
+            ...clientInfo,
             photos: photoRefs,
           });
 
@@ -470,7 +473,7 @@ export const addPhotosToClients = async (
           const mainClientRef = doc(db, "clienti", clientName);
           const mainClientDoc = await getDoc(mainClientRef);
           if (!mainClientDoc.exists()) {
-            batch.set(mainClientRef, { name: clientName });
+            batch.set(mainClientRef, { name: clientName, ...clientInfo });
           }
 
           // Add the photos to the subcollection
@@ -488,16 +491,20 @@ export const addPhotosToClients = async (
           "clienti",
           clientName
         );
-        batch.set(postazioneClientRef, { photos: photoRefs });
+        batch.set(postazioneClientRef, {
+          photos: photoRefs,
+          ...clientInfo,
+          name: clientName,
+        });
       }
     }
     await batch.commit();
-    ToastQueue.positive("Photos added to clients successfully", {
+    ToastQueue.positive("Foto aggiunte correttamente", {
       timeout: 2000,
     });
   } catch (error) {
     console.log(error);
-    ToastQueue.negative("Error adding photos to clients: " + error, {
+    ToastQueue.negative("Errore nell'aggiungere le foto: " + error, {
       timeout: 2000,
     });
   }
@@ -637,13 +644,13 @@ export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
     console.log(tagsString, postId);
     const db = getFirestore();
     const tags = tagsString.split(",");
-    const postazioneRef = doc(db, 'postazioni', postId, 'impostazioni', 'tags');
+    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "tags");
     const docSnapshot = await getDoc(postazioneRef);
     if (docSnapshot.exists()) {
-      console.log('exists');
+      console.log("exists");
       await updateDoc(postazioneRef, { tagDisponibili: tags });
     } else {
-      console.log('not exists');
+      console.log("not exists");
       await setDoc(postazioneRef, { tagDisponibili: tags });
     }
     ToastQueue.positive("Tags salvati con successo", {

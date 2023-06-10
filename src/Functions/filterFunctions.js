@@ -16,6 +16,23 @@ export const filterPhotos = (array, filters) => {
         filters.label.includes(photo.data.label)
       );
     }
+    if (filters.data) {
+      const startDate = new Date(
+        filters.data.start.year,
+        filters.data.start.month - 1,
+        filters.data.start.day
+      );
+      const endDate = new Date(
+        filters.data.end.year,
+        filters.data.end.month - 1,
+        filters.data.end.day
+      );
+      filteredArray = filteredArray.filter((photo) => {
+        const photoDate = new Date(photo.data.lastModified);
+        console.log(photo.data.lastModified,photoDate, startDate,endDate)
+        return photoDate >= startDate && photoDate <= endDate;
+      });
+    }
   }
   return filteredArray;
 };

@@ -57,6 +57,7 @@ import {
 import PostazioneImpostazioni from "./PostazioneImpostazioni";
 import { StateContext } from "../../Context/stateContext";
 import TagsFilter from "../../Organismi/Sidebar/TagsFilter";
+import DataFilter from "../../Organismi/Sidebar/DataFilter";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -150,7 +151,7 @@ function Postazione(props) {
     <LayoutConHeader>
       <Grid
         areas={["sidebar divider content"]}
-        columns={["1fr", "0.03fr", "8fr"]}
+        columns={["1.2fr", "0.03fr", "8fr"]}
         gap="size-100"
         margin={10}
       >
@@ -253,6 +254,7 @@ function Postazione(props) {
                   filteredPhotos={filteredPhotos}
                   setFilteredPhotos={setFilteredPhotos}
                 />
+                <DataFilter />
                 <TagsFilter
                   db={props.db}
                   postazioneId={postazioneId}

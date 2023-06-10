@@ -67,11 +67,10 @@ function PostazioneImpostazioni(props) {
             <Heading level={2}>Tags</Heading>
 
             <Text>
-              Inserisci i tag che vuoi che siano disponibili nella scelta delle
-              cartelle separati dalla ,
+              Inserisci i tag che vuoi che siano disponibili per le foto separati dalla ,
             </Text>
             <TextField
-              label="Tag delle cartelle."
+              label="Tag delle foto."
               width={"100%"}
               onChange={setTags}
               value={tags}

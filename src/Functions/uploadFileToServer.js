@@ -4,7 +4,7 @@ import Compressor from "compressorjs";
 import { StateContext } from "../Context/stateContext";
 
 export const getImagesFromFileInput = (idInput) => {
-  const preId = makeId(4)
+  const preId = makeId(4);
   return new Promise(function (resolve, reject) {
     const fileSelector = document.querySelector(idInput);
     if (!fileSelector) {
@@ -28,10 +28,12 @@ export const getImagesFromFileInput = (idInput) => {
       const file = files[i];
       const imageURL = URL.createObjectURL(file);
       images.push({
-        name: preId+'-'+i,
+        //in name mettere il progressivo di upload+progressivo di foto
+        name: preId + "-" + i,
         url: imageURL,
         type: file.type,
         tags: [],
+        lastModified:new Date(file.lastModified)
       });
     }
     resolve(images);
@@ -144,8 +146,6 @@ export const uploadFotoFinal = async (object, dispatch) => {
   });
   dispatch({ type: "SET_IS_UPLOAD", isUpload: false });
 };
-
-
 
 export const saveToBrowserStorage = (f) => {
   const mainDirectory = "";
