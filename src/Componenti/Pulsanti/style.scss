@@ -24,3 +24,45 @@
 .fotografo-card-foto{
     font-size: 10px;
 }
+#Check-{
+    background-color: rgba(0, 128, 0, 0.1498)!important;
+    color: white;
+    &.active{
+        background-color: rgba(0, 128, 0, 1)!important;
+    }
+}
+#Help-{
+    background-color: rgba(255, 255, 0, 0.16)!important;
+    color: white;
+    &.active{
+        background-color: rgba(255, 255, 0, 1)!important;
+    }
+}
+#Cancel-{
+    background-color: rgba(255, 0, 0, 0.1414)!important;
+    color: white;
+    &.active{
+        background-color: rgba(255, 0, 0, 1)!important;
+    }
+}
+#Check-a{
+    background-color: rgba(0, 128, 0, 1)!important;
+    color: white;
+    svg{
+        fill: white;
+    }
+}
+#Help-a{
+    background-color: rgba(255, 255, 0, 1)!important;
+    svg{
+        fill: black;
+    }
+}
+#Cancel-a{
+    background-color: rgba(255, 0, 0, 1)!important;
+    color: white;
+    svg{
+        fill: white;
+    }
+    
+}

@@ -112,7 +112,7 @@ function CardFoto(props) {
             onChange={() => handleSelectFoto(foto)}
           />
         </View>
-        <Flex direction={"column"} >
+        <Flex direction={"column"}>
           <Flex direction="column" justifyContent={"center"}>
             <span className="title-card-foto">{foto.data.name}</span>
 
@@ -145,7 +145,6 @@ function CardFoto(props) {
             {/*Convertire in 3 singoli ActionButton con staticColor*/}
             <ActionGroup
               density="compact"
-              isEmphasized
               selectionMode="single"
               defaultSelectedKeys={[foto.data.label]}
               onAction={(key) => {
@@ -164,17 +163,32 @@ function CardFoto(props) {
                     );
               }}
             >
-              <Item key="Check" aria-label="Check" >
-                <Checkmark color="positive"/>
+              <Item
+                id={foto.data.label === "Check" ? "Check-a" : "Check-"}
+                key="Check"
+                aria-label="Check"
+              >
+                <Checkmark color="positive" />
               </Item>
-              <Item key="Help" aria-label="Help" color="notice">
+              <Item
+                id={foto.data.label === "Help" ? "Help-a" : "Help-"}
+                key="Help"
+                aria-label="Help"
+                color="notice"
+              >
                 <Help />
               </Item>
-              <Item key="Cancel" aria-label="Cancel" color="negative">
+              <Item
+                id={foto.data.label === "Cancel" ? "Cancel-a" : "Cancel-"}
+                key="Cancel"
+                aria-label="Cancel"
+                color="negative"
+              >
                 <Cancel />
               </Item>
             </ActionGroup>
-           {/* <Button
+
+            {/* <Button
               variant="accent"
               width={"100%"}
               onPress={() => {
