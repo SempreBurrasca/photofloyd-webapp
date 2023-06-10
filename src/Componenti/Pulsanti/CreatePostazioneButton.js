@@ -63,6 +63,7 @@ function CreatePostazioneButton(props) {
     console.log(user);
     await setDoc(doc(db, "postazioni", idPostazione), {
       name: newPostazioneName,
+      uploadCounter:0,
       tag: tagSelected,
     })
       .then(async (e) => {

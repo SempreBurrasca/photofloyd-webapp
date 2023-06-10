@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import LayoutConHeader from "../../Layouts/LayoutConHeader";
 import {
   ActionButton,
@@ -29,21 +29,16 @@ import {
 import Label from "@spectrum-icons/workflow/Label";
 import Shop from "@spectrum-icons/workflow/Shop";
 import Delete from "@spectrum-icons/workflow/Delete";
-import { TagGroup } from "@react-spectrum/tag";
-import { makeId } from "../../Functions/logicArray";
 import ImageAdd from "@spectrum-icons/workflow/ImageAdd";
 import GrigliaFotografie from "../../Componenti/Fotografie/GrigliaFotografie";
 import { ToastQueue } from "@react-spectrum/toast";
-import { uploadFotoFinal } from "../../Functions/uploadFileToServer";
-import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
 import {
+  getPostazioneDoc,
   getTagsFromFirebase,
-  savePhotosToFirebase,
 } from "../../Functions/firebaseFunctions";
 import DialogAddTag from "./DialogAddTag";
 import DialogDeleteFotos from "./DialogDeleteFotos";
 import LabelFilter from "../../Organismi/Sidebar/LabelFilter";
-import NameFilter from "../../Organismi/Sidebar/NameFilter";
 import DialogSellFotos from "./DialogSellFotos";
 import DialogAddToClient from "./DialogAddToClient";
 import FolderUser from "@spectrum-icons/workflow/FolderUser";
@@ -79,8 +74,9 @@ function Postazione(props) {
   React.useEffect(() => {
     setSelectedFotos([]);
     setCartFotos([]);
-    getPostazioneDoc()
+    getPostazioneDoc(props.db, postazioneId, setPostazione, dispatch)
       .then((e) => {
+
         ToastQueue.positive(e, {
           timeout: 2000,
         });
@@ -113,22 +109,9 @@ function Postazione(props) {
       setVendite(vendite);
     });
   }, [openSellDialog]);
-  //recupero la postazione
-  const getPostazioneDoc = async () => {
-    const docRef = doc(props.db, "postazioni", postazioneId);
-    const docSnap = await getDoc(docRef);
-    try {
-      if (docSnap.exists()) {
-        await setPostazione(docSnap.data());
-        return "Documento recuperato con successo";
-      } else {
-        // docSnap.data() will be undefined in this case
-        return "Non c'è il documento da recuperare (impostazioni=>tag)'";
-      }
-    } catch (error) {
-      return "Errore nel caricamento del documento: " + error;
-    }
-  };
+  useEffect(() => {
+    console.log(state);
+  }, [state]);
 
   return (
     <LayoutConHeader>
@@ -280,6 +263,12 @@ function Postazione(props) {
                   <span>{postazione && postazione.name}</span>
                 </Flex>*/}
                 <h2>{postazione && postazione.name}</h2>
+                <span>
+                  {state.currentPostazione &&
+                    state.currentPostazione.uploadCounter &&
+                    "Upload effettuati: " +
+                      state.currentPostazione.uploadCounter}
+                </span>
                 {/*postazione && (
                   <TagGroup items={postazione.tag} aria-label="Tag ">
                     {(item, index) => (

@@ -13,6 +13,7 @@ import {
   deleteDoc,
   addDoc,
   listCollections,
+  increment,
   Timestamp,
 } from "firebase/firestore";
 import {
@@ -21,6 +22,36 @@ import {
   updateProfile,
 } from "firebase/auth";
 
+export const incrementUploadCounter = async (db, postazioneId) => {
+  try {
+    const postazioneRef = doc(db, "postazioni", postazioneId);
+    await updateDoc(postazioneRef, {
+      uploadCounter: increment(1),
+    });
+    console.log("uploadCounter incremented successfully");
+  } catch (error) {
+    console.error("Error incrementing uploadCounter:", error);
+  }
+};
+export const getPostazioneDoc = async (db,postazioneId,callback,callback2) => {
+  const docRef = doc(db, "postazioni", postazioneId);
+  const docSnap = await getDoc(docRef);
+  try {
+    if (docSnap.exists()) {
+      await callback(docSnap.data());
+      await callback2({
+        type: "SET_CURRENT_POSTAZIONE",
+        currentPostazione: docSnap.data(),
+      });
+      return ("Documento recuperato con successo");
+    } else {
+      // docSnap.data() will be undefined in this case
+      return "Non c'è il documento da recuperare (impostazioni=>tag)'";
+    }
+  } catch (error) {
+    return "Errore nel caricamento del documento: " + error;
+  }
+};
 export const savePhotosToFirebase = async (
   db,
   photos,
@@ -59,6 +90,7 @@ export const savePhotosToFirebase = async (
     });
 
     await batch.commit();
+    incrementUploadCounter(db,postazioneId)
     ToastQueue.positive("Foto salvate con successo nel Database", {
       timeout: 2000,
     });

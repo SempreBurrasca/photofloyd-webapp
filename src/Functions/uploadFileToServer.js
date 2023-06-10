@@ -3,8 +3,9 @@ import { makeId } from "./logicArray";
 import Compressor from "compressorjs";
 import { StateContext } from "../Context/stateContext";
 
-export const getImagesFromFileInput = (idInput) => {
-  const preId = makeId(4);
+export const getImagesFromFileInput = (idInput,counterP) => {
+  //inserire il pre id come contatore di upload 
+  const preId = "UP"+counterP;
   return new Promise(function (resolve, reject) {
     const fileSelector = document.querySelector(idInput);
     if (!fileSelector) {

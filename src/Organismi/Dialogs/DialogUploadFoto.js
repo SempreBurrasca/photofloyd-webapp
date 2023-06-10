@@ -28,6 +28,7 @@ import {
 } from "../../Functions/uploadFileToServer";
 import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
 import {
+  getPostazioneDoc,
   getTagsFromFirebase,
   savePhotosToFirebase,
 } from "../../Functions/firebaseFunctions";
@@ -54,7 +55,7 @@ function DialogUploadFoto(props) {
 
   React.useEffect(() => {
     document.querySelector("#files").addEventListener("change", (event) => {
-      getImagesFromFileInput("#files")
+      getImagesFromFileInput("#files",state.currentPostazione.uploadCounter+1)
         .then((images) => {
           setFilesToUpload({photos: images });
         })
@@ -165,7 +166,9 @@ function DialogUploadFoto(props) {
             uploadFotoFinal(filesToUpload, dispatch).then((data) => {
               savePhotosToFirebase(props.db, filesToUpload, postazioneId,selectedTags).then(
                 () => {
+                  getPostazioneDoc(props.db,postazioneId,console.log,dispatch)
                   close();
+
                 }
               );
             })
