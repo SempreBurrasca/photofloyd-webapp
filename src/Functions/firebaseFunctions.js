@@ -33,7 +33,26 @@ export const incrementUploadCounter = async (db, postazioneId) => {
     console.error("Error incrementing uploadCounter:", error);
   }
 };
-export const getPostazioneDoc = async (db,postazioneId,callback,callback2) => {
+export const resetUploadCounter = async (postazioneId, count) => {
+  const db = getFirestore();
+  try {
+    const postazioneRef = doc(db, "postazioni", postazioneId);
+    await updateDoc(postazioneRef, {
+      uploadCounter: count,
+    });
+    console.log("uploadCounter incremented successfully");
+    ToastQueue.positive("Contatore impostato correttamente", { timeout: 500 });
+  } catch (error) {
+    console.error("Error incrementing uploadCounter:", error);
+    ToastQueue.negative(error, { timeout: 1500 });
+  }
+};
+export const getPostazioneDoc = async (
+  db,
+  postazioneId,
+  callback,
+  callback2
+) => {
   const docRef = doc(db, "postazioni", postazioneId);
   const docSnap = await getDoc(docRef);
   try {
@@ -43,7 +62,7 @@ export const getPostazioneDoc = async (db,postazioneId,callback,callback2) => {
         type: "SET_CURRENT_POSTAZIONE",
         currentPostazione: docSnap.data(),
       });
-      return ("Documento recuperato con successo");
+      return "Documento recuperato con successo";
     } else {
       // docSnap.data() will be undefined in this case
       return "Non c'è il documento da recuperare (impostazioni=>tag)'";
@@ -90,7 +109,7 @@ export const savePhotosToFirebase = async (
     });
 
     await batch.commit();
-    incrementUploadCounter(db,postazioneId)
+    incrementUploadCounter(db, postazioneId);
     ToastQueue.positive("Foto salvate con successo nel Database", {
       timeout: 2000,
     });
