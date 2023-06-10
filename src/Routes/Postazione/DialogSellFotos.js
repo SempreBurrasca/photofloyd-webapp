@@ -37,7 +37,11 @@ import Visibility from "@spectrum-icons/workflow/Visibility";
 import ImageAutoMode from "@spectrum-icons/workflow/ImageAutoMode";
 import ProductsButton from "../../Organismi/PhotoSelling/ProductsButton";
 import PresetsCarousel from "./PresetsCarousel";
-import { finalizeSale, getProductsFromFirebase } from "../../Functions/firebaseFunctions";
+import {
+  finalizeSale,
+  getProductsFromFirebase,
+  getProductsFromSettingsPostazione,
+} from "../../Functions/firebaseFunctions";
 import PhotoEditing from "../../Organismi/PhotoEditing/PhotoEditing";
 import Edit from "@spectrum-icons/workflow/Edit";
 import InitialSellStep from "../../Organismi/PhotoSelling/InitialSellStep";
@@ -54,8 +58,14 @@ function DialogSellFotos(props) {
   const [editedFoto, setEditedFoto] = useState(activeFoto);
   const [checkoutData, setCheckOutData] = useState({});
   useEffect(() => {
-    getProductsFromFirebase(props.db).then((prodotti) => {
-      setProdotti(prodotti);
+    getProductsFromSettingsPostazione(props.postazioneId).then((prd) => {
+      if (prd.length > 0) {
+        setProdotti(prd);
+      } else {
+        getProductsFromFirebase(props.db).then((prodotti) => {
+          setProdotti(prodotti);
+        });
+      }
     });
   }, []);
 
@@ -123,10 +133,10 @@ function DialogSellFotos(props) {
     if (paymentCard) {
       totalPrice = totalPrice + 1.5;
     }
-    if(currency === "USD"){
+    if (currency === "USD") {
       totalPrice = totalPrice + 1.5;
     }
-    if(currency === "GBP"){
+    if (currency === "GBP") {
       totalPrice = totalPrice + 3.5;
     }
     return totalPrice * (1 + tassazione);
@@ -134,8 +144,8 @@ function DialogSellFotos(props) {
   const finalizzaVendita = async (arg) => {
     console.log("finalizzaVendita", arg);
     finalizeSale(arg).then((res) => {
-      close()
-    })
+      close();
+    });
   };
   return (
     //CAMBIARE DIALOG CON DIALOG CONTAINER
@@ -144,49 +154,49 @@ function DialogSellFotos(props) {
       <Divider />
       <Content>
         <View>
-        {step === 0 && (
-          <InitialSellStep
-            key={activeFoto.id + "-initial"}
-            prodotti={prodotti}
-            setProdotti={setProdotti}
-            activeFoto={activeFoto}
-            setActiveFoto={setActiveFoto}
-            selectedFotos={selectedFotos}
-            setCartFotos={props.setCartFotos}
-            setStep={setStep}
-            step={step}
-            cartFotos={props.cartFotos}
-            addToCart={addToCart}
-            postazioneId={props.postazioneId}
-          />
-        )}
+          {step === 0 && (
+            <InitialSellStep
+              key={activeFoto.id + "-initial"}
+              prodotti={prodotti}
+              setProdotti={setProdotti}
+              activeFoto={activeFoto}
+              setActiveFoto={setActiveFoto}
+              selectedFotos={selectedFotos}
+              setCartFotos={props.setCartFotos}
+              setStep={setStep}
+              step={step}
+              cartFotos={props.cartFotos}
+              addToCart={addToCart}
+              postazioneId={props.postazioneId}
+            />
+          )}
 
-        {step === 1 && (
-          <CheckOut
-            cartFotos={props.cartFotos}
-            setPaymentCard={setPaymentCard}
-            tassazione={tassazione}
-            totalOfProducts={totalOfProducts}
-            handleDownload={handleDownload}
-            postazioneId={props.postazioneId}
-            db={props.db}
-            checkoutData={checkoutData}
-            finalizzaVendita={finalizzaVendita}
-          />
-        )}
-        {step === 2 && <Text>Vendita effettuata correttamente</Text>}
-        {step === 3 && (
-          <PhotoEditing
-            activeFoto={activeFoto}
-            setActiveFoto={setActiveFoto}
-            cartFotos={props.cartFotos}
-            setCartFotos={props.setCartFotos}
-            editedFoto={editedFoto}
-            setEditedFoto={setEditedFoto}
-            close={handleBack}
-            postazioneId={props.postazioneId}
-          />
-        )}
+          {step === 1 && (
+            <CheckOut
+              cartFotos={props.cartFotos}
+              setPaymentCard={setPaymentCard}
+              tassazione={tassazione}
+              totalOfProducts={totalOfProducts}
+              handleDownload={handleDownload}
+              postazioneId={props.postazioneId}
+              db={props.db}
+              checkoutData={checkoutData}
+              finalizzaVendita={finalizzaVendita}
+            />
+          )}
+          {step === 2 && <Text>Vendita effettuata correttamente</Text>}
+          {step === 3 && (
+            <PhotoEditing
+              activeFoto={activeFoto}
+              setActiveFoto={setActiveFoto}
+              cartFotos={props.cartFotos}
+              setCartFotos={props.setCartFotos}
+              editedFoto={editedFoto}
+              setEditedFoto={setEditedFoto}
+              close={handleBack}
+              postazioneId={props.postazioneId}
+            />
+          )}
         </View>
       </Content>
       <ButtonGroup>
