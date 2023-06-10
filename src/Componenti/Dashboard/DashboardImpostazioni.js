@@ -46,6 +46,7 @@ function DashboardImpostazioni(props) {
     });
     getProductsFromFirebase(props.db).then((prodotti) => {
       setProdotti(prodotti);
+      console.log(prodotti)
     });
   }, []);
   const addOneProductPlaceholder = () => {
