@@ -73,7 +73,7 @@ const convertBlobUrlToBlob = async (blobURL, name, type) => {
 //Upload delle foto
 export const uploadFotoFinal = async (object, dispatch) => {
   dispatch({ type: "SET_IS_UPLOAD", isUpload: true });
-
+console.log("inizio upload")
   // Set the initial upload status
   dispatch({
     type: "SET_UPLOAD_STATUS",

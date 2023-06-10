@@ -40,25 +40,40 @@ import {
 } from "../../Functions/uploadFileToServer";
 import { uploadToIndexedDB } from "../../Functions/IndexedDB";
 import TabellaFotoInUpload from "../../Organismi/TabellaFotoInUpload.js/TabellaFotoInUpload";
-import { savePhotosToFirebase, updatePhotoTags } from "../../Functions/firebaseFunctions";
+import {
+  savePhotosToFirebase,
+  updatePhotoTags,
+} from "../../Functions/firebaseFunctions";
 import { containsObject } from "../../Functions/tools";
 
 function DialogAddTag(props) {
-  const { close, selectedFotos } = props;
+  const { close, selectedFotos, availableTags } = props;
   const [selectedTags, setSelectedTags] = useState([]);
-  const availableTags = [
-    { id: 1, name: "Tag1" },
-    { id: 2, name: "Tag2" },
-    { id: 3, name: "Tag3" },
-  ];
+
   //manca da completare la logica che impedisca duplicati
-  const selezionaTag = (item) => {
-    setSelectedTags(selectedTags.concat({ id: item, name: item }));
-  };
+
   const aggiornaTag = async () => {
     console.log(selectedFotos);
     console.log(selectedTags);
-    await updatePhotoTags(props.db,selectedFotos,selectedTags,props.postazioneId)
+    await updatePhotoTags(
+      props.db,
+      selectedFotos,
+      selectedTags,
+      props.postazioneId
+    );
+  };
+  const handleSelectionTags = (e) => {
+    let array = selectedTags;
+    if (array.includes(e)) {
+      const index = array.indexOf(e);
+      if (index > -1) {
+        // only splice array when item is found
+        array.splice(index, 1); // 2nd parameter means remove one item only
+        setSelectedTags([...array]);
+      }
+    } else {
+      setSelectedTags([...array, e]);
+    }
   };
   return (
     <Dialog>
@@ -66,33 +81,27 @@ function DialogAddTag(props) {
       <Header>Connection status: Connected</Header>
       <Divider />
       <Content>
-        <Text>
-          Aggiungi i tag a {selectedFotos.length} fotografie, per farlo utilizza
-          il form qui sotto.
-        </Text>
-        <TagGroup
-          items={availableTags}
-          label="Tag"
-          aria-label="Tag selezionabili per la fotografie"
-        >
-          {(item) => (
-            <Item key={item.id}>
-              <a
-                className={
-                  containsObject(selectedTags, {
-                    id: item.name,
-                    name: item.name,
-                  })
-                    ? "tag-button active"
-                    : "tag-button"
-                }
-                onClick={() => selezionaTag(item.name)}
-              >
+        <Flex direction={"column"} gap={"size-200"}>
+          <Text>
+            Aggiungi i tag a {selectedFotos.length} fotografie, per farlo
+            selezionali.
+          </Text>
+          <ActionGroup
+            items={availableTags}
+            aria-label="Tag di filtraggio"
+            selectionMode="multiple"
+            isEmphasized
+            onAction={(e) => {
+              handleSelectionTags(e);
+            }}
+          >
+            {(item) => (
+              <Item key={item.name} onClick={() => console.log("das")}>
                 {item.name}
-              </a>
-            </Item>
-          )}
-        </TagGroup>
+              </Item>
+            )}
+          </ActionGroup>
+        </Flex>
       </Content>
       <ButtonGroup>
         <Button variant="secondary" onPress={close}>
@@ -100,9 +109,15 @@ function DialogAddTag(props) {
         </Button>
         <Button
           variant="accent"
-          onPress={() => {aggiornaTag().then(()=>{props.setSelectedFotos([]);close()})}}
+          isDisabled={!selectedTags.length>0}
+          onPress={() => {
+            aggiornaTag().then(() => {
+              props.setSelectedFotos([]);
+              close();
+            });
+          }}
         >
-          Conferma
+          Aggiungi Tag
         </Button>
       </ButtonGroup>
     </Dialog>

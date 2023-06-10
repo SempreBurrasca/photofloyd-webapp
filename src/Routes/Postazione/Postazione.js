@@ -176,6 +176,7 @@ function Postazione(props) {
                       db={props.db}
                       postazioneId={postazioneId}
                       setSelectedFotos={(e) => setSelectedFotos(e)}
+                      availableTags={availableTags}
                     />
                   )}
                 </DialogTrigger>
@@ -279,13 +280,13 @@ function Postazione(props) {
                   <span>{postazione && postazione.name}</span>
                 </Flex>*/}
                 <h2>{postazione && postazione.name}</h2>
-                {postazione && (
+                {/*postazione && (
                   <TagGroup items={postazione.tag} aria-label="Tag ">
                     {(item, index) => (
                       <Item key={item.id + "-" + makeId(3)}>{item.name}</Item>
                     )}
                   </TagGroup>
-                )}
+                    )*/}
               </Flex>
               <DialogTrigger>
                 <ActionButton>

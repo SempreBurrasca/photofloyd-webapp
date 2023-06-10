@@ -17,6 +17,7 @@ import {
   Header,
   Heading,
   Item,
+  ProgressBar,
   Switch,
 } from "@adobe/react-spectrum";
 
@@ -94,6 +95,25 @@ function DialogUploadFoto(props) {
         <Heading level={4}>
           Seleziona la cartella che vuoi caricare dal tuo computer.
         </Heading>
+        <DialogContainer isDismissable={false}>
+        {state.isUpload && (
+          <Dialog>
+            <Heading>Upload in corso</Heading>
+            <Header>Perfavore Attendere</Header>
+            <Divider />
+            <Content>
+              <ProgressBar
+                label={state.statusUpload.label}
+                minValue={0}
+                maxValue={state.statusUpload.max}
+                value={state.statusUpload.current}
+                width={"100%"}
+              />
+            
+            </Content>
+          </Dialog>
+        )}
+      </DialogContainer>
         <Flex direction={"column"} gap={"size-200"}>
           <ActionGroup
             items={availableTags}
@@ -151,7 +171,7 @@ function DialogUploadFoto(props) {
             })
           }
         >
-          Conferma
+          Inizia Upload
         </Button>
       </ButtonGroup>
     </Dialog>
