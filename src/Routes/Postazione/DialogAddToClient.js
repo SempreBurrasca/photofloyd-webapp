@@ -25,7 +25,7 @@ import { getClienti } from "../../Functions/firebaseGetFunctions";
 
 function DialogAddToClient(props) {
   const { close, selectedFotos } = props;
-  let [selectedClients, setSelectedClients] = React.useState([]);
+  let [selectedClients, setSelectedClients] = React.useState(false);
   const [clients, setClients] = useState([]);
   const [exist, setExist] = useState(false);
   const [clientName, setClientName] = useState("");
@@ -121,6 +121,7 @@ function DialogAddToClient(props) {
         </Button>
         <Button
           variant="accent"
+          isDisabled={exist ? !selectedClients : !clientName}
           onPress={() => {
             addPhotosToClients(
               props.db,

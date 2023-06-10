@@ -334,12 +334,13 @@ export const saveProductToFirebase = async (db, product) => {
     });
   }
 };
+
 export const getProductsFromFirebase = async (db) => {
   try {
     const products = [];
     const querySnapshot = await getDocs(collection(db, "prodotti"));
     querySnapshot.forEach((doc) => {
-      products.push(doc.data());
+      products.push({...doc.data(),doc:doc.ref});
     });
     return products;
   } catch (error) {
@@ -699,5 +700,43 @@ export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
     ToastQueue.negative("Errore nel salvare i tag" + error, {
       timeout: 500,
     });
+  }
+};
+export const saveProductsToSettingsPostazione = async (prodotti, postId) => {
+  try {
+    console.log(prodotti, postId);
+    const db = getFirestore();
+    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "prodotti");
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      console.log("exists");
+      await updateDoc(postazioneRef, { prodotti });
+    } else {
+      console.log("not exists");
+      await setDoc(postazioneRef, { prodotti });
+    }
+    ToastQueue.positive("Prodotti salvati con successo", {
+      timeout: 500,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare i prodotti" + error, {
+      timeout: 500,
+    });
+  }
+};
+export const getProductsFromSettingsPostazione = async (postId) => {
+  try {
+    const db = getFirestore();
+    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "prodotti");
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      return docSnapshot.data().prodotti;
+    } else {
+      console.log("No products found");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error retrieving products:", error);
+    return [];
   }
 };
