@@ -21,7 +21,12 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-export const savePhotosToFirebase = async (db, photos, postazioneId) => {
+export const savePhotosToFirebase = async (
+  db,
+  photos,
+  postazioneId,
+  selectedTags
+) => {
   try {
     const batch = writeBatch(db);
     const auth = getAuth();
@@ -44,7 +49,7 @@ export const savePhotosToFirebase = async (db, photos, postazioneId) => {
         name: fileName,
         url: "https://www.photofloyd.cloud/app/upload/" + fileName,
         lastModified: photo.lastModified,
-        tags: photo.tags,
+        tags: selectedTags,
         label: " ",
         fotografo: {
           nome: user.displayName && user.displayName,
@@ -52,30 +57,13 @@ export const savePhotosToFirebase = async (db, photos, postazioneId) => {
         },
       });
     });
-    if (photos.folders && photos.folders.length > 0) {
-      photos.folders.forEach((folder) => {
-        const folderRef = doc(
-          db,
-          "postazioni",
-          postazioneId,
-          "cartelle",
-          folder.name
-        );
-        batch.set(folderRef, {
-          name: folder.name,
-          label: " ",
-          tags: folder.tags,
-          photos: folder.images.map((photoName) =>
-            doc(db, "postazioni", postazioneId, "fotografie", photoName.name)
-          ),
-        });
-      });
-    }
+
     await batch.commit();
     ToastQueue.positive("Foto salvate con successo nel Database", {
       timeout: 2000,
     });
   } catch (error) {
+    console.log(error);
     ToastQueue.negative("Errore nel salvare le foto sul Database" + error, {
       timeout: 2000,
     });

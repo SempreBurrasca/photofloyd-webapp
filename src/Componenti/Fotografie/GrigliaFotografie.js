@@ -4,17 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 import { Flex, View, Well } from "@adobe/react-spectrum";
 
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { ToastQueue } from "@react-spectrum/toast";
 
 import CardFoto from "./CardFoto";
 import { StateContext } from "../../Context/stateContext";
-import {
-  clientFilter,
-  filterPhotos,
-  tagsFilter,
-} from "../../Functions/filterFunctions";
-import { CalendarDate } from "@internationalized/date";
+import { filterPhotos } from "../../Functions/filterFunctions";
 function GrigliaFotografie(props) {
   const { state, dispatch } = useContext(StateContext);
   const setSelectedFotos = props.setSelectedFotos;
@@ -22,9 +17,6 @@ function GrigliaFotografie(props) {
   const [fotografie, setFotografie] = useState([]);
   const [visibleFotografie, setVisibleFotografie] = useState([]);
   const observer = useRef(null);
-  const navigate = useNavigate();
-  const auth = getAuth();
-  const user = auth.currentUser;
   const filteredPhotos = props.filteredPhotos;
 
   useEffect(() => {
@@ -92,10 +84,8 @@ function GrigliaFotografie(props) {
       setSelectedFotos((prevSelected) =>
         prevSelected.filter((item) => item !== foto)
       );
-      console.log(foto, selectedFotos);
     } else {
       setSelectedFotos((prevSelected) => [...prevSelected, foto]);
-      console.log(foto, selectedFotos);
     }
   };
 

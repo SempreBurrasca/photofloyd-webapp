@@ -58,13 +58,10 @@ import PostazioneImpostazioni from "./PostazioneImpostazioni";
 import { StateContext } from "../../Context/stateContext";
 import TagsFilter from "../../Organismi/Sidebar/TagsFilter";
 import DataFilter from "../../Organismi/Sidebar/DataFilter";
+import DialogUploadFoto from "../../Organismi/Dialogs/DialogUploadFoto";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
-  const [filesToUpload, setFilesToUpload] = useState({
-    photos: [],
-    folders: [],
-  });
   const [selectedFotos, setSelectedFotos] = useState([]);
   const [cartFotos, setCartFotos] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
@@ -133,20 +130,6 @@ function Postazione(props) {
     }
   };
 
-  //preparo i file per poi caricarli
-  const callSetFilesToUpload = async (files) => {
-    try {
-      await setFilesToUpload(files);
-      ToastQueue.positive("File pronti per l'upload", {
-        timeout: 2000,
-      });
-    } catch (error) {
-      // handle error
-      ToastQueue.negative("Errore:" + error, {
-        timeout: 2000,
-      });
-    }
-  };
   return (
     <LayoutConHeader>
       <Grid
@@ -309,67 +292,11 @@ function Postazione(props) {
                   <ImageAdd /> IMPORTA FOTO
                 </ActionButton>
                 {(close) => (
-                  <Dialog>
-                    <Heading>Upload cartella Foto</Heading>
-                    <Header>Connection status: Connected</Header>
-                    <Divider />
-
-                    <Content>
-                      <Heading level={4}>
-                        Seleziona la cartella che vuoi caricare dal tuo
-                        computer.
-                      </Heading>
-                      <Switch onChange={setIsWebkitDirectory}>
-                        Carica cartella
-                      </Switch>
-                      {isWebkitDirectory ? (
-                        <input
-                          type="file"
-                          name="photos[]"
-                          id="files"
-                          multiple="multiple"
-                          webkitdirectory="true"
-                          accept="image/*"
-                        />
-                      ) : (
-                        <input
-                          type="file"
-                          name="photos[]"
-                          id="files"
-                          multiple="multiple"
-                          accept="image/*"
-                        />
-                      )}
-                      <TabellaFotoInUpload
-                        availableTags={availableTags}
-                        callSetFilesToUpload={callSetFilesToUpload}
-                      />
-                    </Content>
-                    <ButtonGroup>
-                      <Button variant="secondary" onPress={close}>
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="accent"
-                        isDisabled={filesToUpload.photos.length === 0}
-                        onPress={() =>
-                          uploadFotoFinal(filesToUpload, dispatch).then(
-                            (data) => {
-                              savePhotosToFirebase(
-                                props.db,
-                                filesToUpload,
-                                postazioneId
-                              ).then(() => {
-                                close();
-                              });
-                            }
-                          )
-                        }
-                      >
-                        Conferma
-                      </Button>
-                    </ButtonGroup>
-                  </Dialog>
+                  <DialogUploadFoto
+                    close={close}
+                    availableTags={availableTags}
+                    db={props.db}
+                  />
                 )}
               </DialogTrigger>
             </Flex>
