@@ -54,6 +54,7 @@ import { StateContext } from "../../Context/stateContext";
 import TagsFilter from "../../Organismi/Sidebar/TagsFilter";
 import DataFilter from "../../Organismi/Sidebar/DataFilter";
 import DialogUploadFoto from "../../Organismi/Dialogs/DialogUploadFoto";
+import FotografoFilter from "../../Organismi/Sidebar/FotografoFilter";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -76,7 +77,6 @@ function Postazione(props) {
     setCartFotos([]);
     getPostazioneDoc(props.db, postazioneId, setPostazione, dispatch)
       .then((e) => {
-
         ToastQueue.positive(e, {
           timeout: 2000,
         });
@@ -221,6 +221,7 @@ function Postazione(props) {
                   filteredPhotos={filteredPhotos}
                   setFilteredPhotos={setFilteredPhotos}
                 />
+                <FotografoFilter db={props.db} postazioneId={postazioneId} />
                 <DataFilter />
                 <TagsFilter
                   db={props.db}

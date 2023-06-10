@@ -29,9 +29,14 @@ export const filterPhotos = (array, filters) => {
       );
       filteredArray = filteredArray.filter((photo) => {
         const photoDate = new Date(photo.data.lastModified);
-        console.log(photo.data.lastModified,photoDate, startDate,endDate)
+        console.log(photo.data.lastModified, photoDate, startDate, endDate);
         return photoDate >= startDate && photoDate <= endDate;
       });
+    }
+    if (filters.fotografo) {
+      filteredArray = filteredArray.filter(
+        (photo) => photo.data.fotografo.nome === filters.fotografo
+      );
     }
   }
   return filteredArray;

@@ -97,6 +97,14 @@ export function reducer(state, action) {
           data: action.data,
         },
       };
+      case "SET_FILTER_FOTOGRAFO":
+      return {
+        ...state,
+        filters: {
+          ...state.filters,
+          fotografo: action.fotografo,
+        },
+      };
     default:
       return state;
   }
