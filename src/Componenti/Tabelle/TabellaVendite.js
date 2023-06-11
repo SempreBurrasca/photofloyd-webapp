@@ -31,9 +31,31 @@ import { Timestamp } from "firebase/firestore";
 function TabellaVendite(props) {
   const navigate = useNavigate();
   const { vendite } = props;
-  useEffect(() => {
-    console.log(vendite);
-  }, [vendite]);
+  const [search, setSearch] = React.useState();
+  const [filteredVendite,setFilteredVendite]=React.useState(vendite)
+
+  useEffect(()=>{
+    if(search&&search.length>3){
+      const filteredVendite = vendite.filter((vendita) => {
+        const postazioneMatch = vendita.postazione.toLowerCase()
+        .includes(search.toLowerCase());
+        const emailMatch = vendita.cliente.email
+          .toLowerCase()
+          .includes(search.toLowerCase());
+          const clienteMatch = vendita.cliente.name
+          .toLowerCase()
+          .includes(search.toLowerCase());
+          const fotografoMatch = vendita.fotografo.displayName
+          .toLowerCase()
+          .includes(search.toLowerCase());
+          const idMatch = vendita.id
+          .toLowerCase()
+          .includes(search.toLowerCase());
+        return postazioneMatch || emailMatch || clienteMatch || fotografoMatch || idMatch;
+      });
+      setFilteredVendite(filteredVendite);
+    }
+  },[search,vendite])
 
   const formatDate = (data) => {
     const timestamp = new Timestamp(data.seconds, data.nanoseconds);
@@ -47,6 +69,13 @@ function TabellaVendite(props) {
       gap={"size-200"}
       width={"90%"}
     >
+      <TextField
+        label="Ricerca"
+        icon={<Search />}
+        width="80vw"
+        value={search}
+        onChange={setSearch}
+      />
       {vendite.length > 0 ? (
         <TableView
           height="100%"
@@ -57,7 +86,7 @@ function TabellaVendite(props) {
             <Column allowsResizing align="end" width={100}>
               Data
             </Column>
-            <Column allowsResizing align="start" width={100}>
+            <Column allowsResizing align="start">
               ID
             </Column>
             <Column allowsResizing align="start">
@@ -78,7 +107,7 @@ function TabellaVendite(props) {
             </Column>
           </TableHeader>
           <TableBody>
-            {vendite.map((vendita) => (
+            {filteredVendite.map((vendita) => (
               <Row key={makeId(4) + "-" + vendita.id}>
                 <Cell align="end">{formatDate(vendita.data)}</Cell>
                 <Cell align="start">{vendita.id}</Cell>
