@@ -69,7 +69,7 @@ function InitialSellStep(props) {
     } else if (key === "edit") {
       setStep(3);
     } else {
-      window.open(process.env.PUBLIC_URL + "/app#/client-view", "_blank");//usare navigate per dare la route
+      window.open(process.env.PUBLIC_URL + "/app#/client-view", "_blank"); //usare navigate per dare la route
     }
   };
   const formatEditSelected = () => {
@@ -109,36 +109,17 @@ function InitialSellStep(props) {
             key={activeFoto.id}
             foto={activeFoto}
             objectFit="contain"
-            height={"300px"}
+            height={"50vh"}
             postazioneId={props.postazioneId}
             setIsSelectedEdit={setIsSelectedEdit}
             isSelectedEdit={isSelectedEdit}
             setEditSelected={setEditSelected}
             editSelected={editSelected}
           />
-          <ActionGroup
-            isJustified
-            density="compact"
-            overflowMode="collapse"
-            onAction={handleAction}
-          >
-            <Item key="edit">
-              <Edit />
-              <Text>Modifica</Text>
-            </Item>
-            <Item key="mostra">
-              <Visibility />
-              <Text>Mostra</Text>
-            </Item>
-            <Item key="cart">
-              <ShoppingCart />
-              <Text>
-                {productIsSelected
-                  ? "Aggiungi al carrello"
-                  : "Seleziona prima un prodotto"}
-              </Text>
-            </Item>
-          </ActionGroup>
+          <ActionButton isDisabled={!productIsSelected} onPress={()=>addToCart(activeFoto)}>
+            <ShoppingCart />
+            Aggiungi al carrello
+          </ActionButton>
         </Flex>
       </Flex>
 
@@ -146,7 +127,10 @@ function InitialSellStep(props) {
       <View margin={"size-125"} overflow={"auto"} padding={"size-125"}>
         <Flex gap="size-100">
           {selectedFotos.map((foto) => (
-            <div key={foto.id + "-" + makeId(4)} onClick={() => setActiveFoto(foto)}>
+            <div
+              key={foto.id + "-" + makeId(4)}
+              onClick={() => setActiveFoto(foto)}
+            >
               <View
                 key={foto.id + "-" + makeId(4)}
                 flex={1}

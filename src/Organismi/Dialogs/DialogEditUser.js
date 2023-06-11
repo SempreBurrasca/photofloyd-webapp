@@ -23,6 +23,8 @@ import {
   Heading,
   Text,
   Switch,
+  RadioGroup,
+  Radio,
 } from "@adobe/react-spectrum";
 import Edit from "@spectrum-icons/workflow/Edit";
 import Search from "@spectrum-icons/workflow/Search";
@@ -51,19 +53,13 @@ function DialogEditUser(props) {
 
   const handleSave = () => {
     let newData = {
-        displayName: nome,
-        ruolo: ruolo,
-        email: user.email,
-        permessi: [permessi0, permessi1, permessi2, permessi3, permessi4],
-        postazioni: selected,
-      };
-      if (permessi0) {
-        newData.permessi = [true, true, true, true, true];
-      } else if (permessi3) {
-        newData.permessi[4] = true;
-      }
-      updateUser(user.uid,newData,selected);
-      close();
+      displayName: nome,
+      ruolo: ruolo,
+      email: user.email,
+      postazioni: selected,
+    };
+    updateUser(user.uid, newData, selected);
+    close();
   };
   return (
     <Dialog>
@@ -80,12 +76,17 @@ function DialogEditUser(props) {
             value={nome}
             onChange={setNome}
           />
-          <TextField
-            label="Ruolo"
-            width={"100%"}
-            value={ruolo}
-            onChange={setRuolo}
-          />
+          <RadioGroup label="Ruolo" value={ruolo} onChange={setRuolo}>
+            <Radio  value="Admin">
+              Admin
+            </Radio>
+            <Radio value="Responsabile">
+              Responsabile
+            </Radio>
+            <Radio value="Fotografo">
+              Fotografo
+            </Radio>
+          </RadioGroup>
           <CheckboxGroup
             label="Postazioni"
             value={selected}
@@ -97,36 +98,6 @@ function DialogEditUser(props) {
               </Checkbox>
             ))}
           </CheckboxGroup>
-          <Flex direction={"column"} gap={"size-100"}>
-            <Text>Permessi</Text>
-            <Switch isSelected={permessi0} onChange={setPermessi0}>
-              Admin
-            </Switch>
-            <Switch
-              isSelected={permessi0 ? true : permessi1}
-              onChange={setPermessi1}
-            >
-              Editor Postazioni
-            </Switch>
-            <Switch
-              isSelected={permessi0 ? true : permessi2}
-              onChange={setPermessi2}
-            >
-              Editor Staff
-            </Switch>
-            <Switch
-              isSelected={permessi0 ? true : permessi3}
-              onChange={setPermessi3}
-            >
-              Editor Finanze
-            </Switch>
-            <Switch
-              isSelected={permessi0 ? true : permessi3 ? true : permessi4}
-              onChange={setPermessi4}
-            >
-              Reader Finanze
-            </Switch>
-          </Flex>
         </Flex>
       </Content>
       <ButtonGroup>

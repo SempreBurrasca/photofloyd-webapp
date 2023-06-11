@@ -9,16 +9,8 @@ import {
   TableBody,
   TableHeader,
   ActionButton,
-  View,
   TextField,
   DialogTrigger,
-  Dialog,
-  Button,
-  ButtonGroup,
-  Content,
-  Divider,
-  Header,
-  Heading,
 } from "@adobe/react-spectrum";
 import Edit from "@spectrum-icons/workflow/Edit";
 import Search from "@spectrum-icons/workflow/Search";
@@ -27,6 +19,23 @@ import { makeId } from "../../Functions/logicArray";
 function TabellaStaff(props) {
   const navigate = useNavigate();
   const { staff } = props;
+  const [search, setSearch] = React.useState("");
+
+  const [filteredStaff, setFilteredStaff] = React.useState(staff);
+
+  React.useEffect(() => {
+    const filteredStaff = staff.filter((user) => {
+      // Check if user displayName or email includes search value
+      const displayNameMatch = user.displayName
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const emailMatch = user.email
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      return displayNameMatch || emailMatch;
+    });
+    setFilteredStaff(filteredStaff);
+  }, [search, staff]);
   return (
     <Flex
       height="100%"
@@ -35,7 +44,13 @@ function TabellaStaff(props) {
       alignItems="center"
       gap={"size-200"}
     >
-      <TextField label="Ricerca" icon={<Search />} isDisabled width="80vw" />
+      <TextField
+        label="Ricerca"
+        icon={<Search />}
+        width="80vw"
+        value={search}
+        onChange={setSearch}
+      />
       <TableView
         height="100%"
         width="80vw"
@@ -47,7 +62,7 @@ function TabellaStaff(props) {
           <Column align="end">Modifica</Column>
         </TableHeader>
         <TableBody>
-          {staff.map((user) => (
+          {filteredStaff.map((user) => (
             <Row key={makeId(4) + "-" + user.uid}>
               <Cell align="start">
                 {user.displayName ? user.displayName : user.email}
@@ -58,9 +73,7 @@ function TabellaStaff(props) {
                   <ActionButton>
                     <Edit />
                   </ActionButton>
-                  {(close) => (
-                    <DialogEditUser  user={user} close={close} />
-                  )}
+                  {(close) => <DialogEditUser user={user} close={close} />}
                 </DialogTrigger>
               </Cell>
             </Row>

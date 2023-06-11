@@ -93,8 +93,8 @@ function SingleFormProduct(props) {
                 setProdotto({ ...prodotto, misura: selected })
               }
             >
-              <Item key="cm">Cm</Item>
-              <Item key="px">Px</Item>
+              <Item key="cm">cm</Item>
+              <Item key="px">px</Item>
             </ComboBox>
           </Flex>
         )}

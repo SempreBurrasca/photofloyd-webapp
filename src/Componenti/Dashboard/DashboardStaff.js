@@ -10,7 +10,6 @@ function DashboardStaff(props) {
   useEffect(() => {
     getUsers().then((res) => {
       setStaff(res);
-      console.log(res);
     });
   }, []);
   return (

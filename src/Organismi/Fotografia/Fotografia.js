@@ -74,7 +74,7 @@ function Fotografia(props) {
   };
   return (
     <Flex direction={"column"} gap={"size-115"} alignItems={"center"}>
-      {edits.length > 0 && (
+      {/*{edits.length > 0 && (
         <Picker
           label="Scegli una versione"
           items={edits}
@@ -83,7 +83,7 @@ function Fotografia(props) {
         >
           {(item) => <Item key={item.name}>{item.name}</Item>}
         </Picker>
-      )}
+      )}*/}
       <Image
         src={edits.length > 0 && isSelectedEdit ? editSelected.url : foto.data.url}
         height={props.height}
