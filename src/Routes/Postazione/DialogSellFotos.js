@@ -58,8 +58,8 @@ function DialogSellFotos(props) {
   const [tassazione, setTassazione] = useState(0.22);
   const [editedFoto, setEditedFoto] = useState(activeFoto);
   const [checkoutData, setCheckOutData] = useState({});
-  const [totalExtras,setTotalExtras]=useState({})
-  const [commCarta,setCommCarta] = useState()
+  const [totalExtras, setTotalExtras] = useState({});
+  const [commCarta, setCommCarta] = useState();
   useEffect(() => {
     getProductsFromSettingsPostazione(props.postazioneId).then((prd) => {
       if (prd.length > 0) {
@@ -70,18 +70,21 @@ function DialogSellFotos(props) {
         });
       }
     });
-    getCommissioniPostazione(props.postazioneId).then((d)=>{
-       
-      if(d.carta){
+    getCommissioniPostazione(props.postazioneId).then((d) => {
+      if (d.carta) {
         setCommCarta(d.carta.prezzo);
-      }else{
+      } else {
         setCommCarta(1);
       }
-    })
+    });
   }, []);
 
   const addToCart = (foto) => {
-    props.setCartFotos(props.cartFotos.concat(foto));
+    props.setCartFotos(
+      props.cartFotos.concat({
+        ...foto,
+      })
+    );
   };
   const handleStep = () => {
     //step 0 - step 1 - step 2 - step 3 (editing )
@@ -140,14 +143,14 @@ function DialogSellFotos(props) {
       totalPrice = totalPrice + element.product.prezzo;
     });
 
-    if (paymentCard===1) {
-         totalPrice = totalPrice + totalPrice*commCarta;
+    if (paymentCard === 1) {
+      totalPrice = totalPrice + totalPrice * commCarta;
     }
-    if (currency&&currency.cambio ) {
-      totalPrice = totalPrice *currency.cambio;
+    if (currency && currency.cambio) {
+      totalPrice = totalPrice * currency.cambio;
     }
-   
-    return totalPrice.toFixed(2) ;
+
+    return totalPrice.toFixed(2);
   };
   const finalizzaVendita = async (arg) => {
     console.log("finalizzaVendita", arg);

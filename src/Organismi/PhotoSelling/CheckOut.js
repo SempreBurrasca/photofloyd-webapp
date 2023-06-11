@@ -95,7 +95,7 @@ function CheckOut(props) {
       fotoAcquistate: props.cartFotos,
       totale: totalOfProducts(),
       postazione: postazioneId,
-      tassazione: tassazione,
+      paymentCard: paymentCard,
     });
   };
   return (
