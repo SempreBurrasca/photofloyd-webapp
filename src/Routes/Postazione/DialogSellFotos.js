@@ -46,6 +46,7 @@ import PhotoEditing from "../../Organismi/PhotoEditing/PhotoEditing";
 import Edit from "@spectrum-icons/workflow/Edit";
 import InitialSellStep from "../../Organismi/PhotoSelling/InitialSellStep";
 import CheckOut from "../../Organismi/PhotoSelling/CheckOut";
+import { getCommissioniPostazione } from "../../Functions/firebaseGetFunctions";
 
 function DialogSellFotos(props) {
   const { close, selectedFotos } = props;
@@ -57,6 +58,8 @@ function DialogSellFotos(props) {
   const [tassazione, setTassazione] = useState(0.22);
   const [editedFoto, setEditedFoto] = useState(activeFoto);
   const [checkoutData, setCheckOutData] = useState({});
+  const [totalExtras,setTotalExtras]=useState({})
+  const [commCarta,setCommCarta] = useState()
   useEffect(() => {
     getProductsFromSettingsPostazione(props.postazioneId).then((prd) => {
       if (prd.length > 0) {
@@ -67,6 +70,14 @@ function DialogSellFotos(props) {
         });
       }
     });
+    getCommissioniPostazione(props.postazioneId).then((d)=>{
+       
+      if(d.carta){
+        setCommCarta(d.carta.prezzo);
+      }else{
+        setCommCarta(1);
+      }
+    })
   }, []);
 
   const addToCart = (foto) => {
@@ -125,21 +136,18 @@ function DialogSellFotos(props) {
   };
   const totalOfProducts = (currency) => {
     let totalPrice = 0;
-
     props.cartFotos.forEach((element) => {
       totalPrice = totalPrice + element.product.prezzo;
     });
 
-    if (paymentCard) {
-      totalPrice = totalPrice + 1.5;
+    if (paymentCard===1) {
+         totalPrice = totalPrice + totalPrice*commCarta;
     }
-    if (currency === "USD") {
-      totalPrice = totalPrice + 1.5;
+    if (currency&&currency.cambio ) {
+      totalPrice = totalPrice *currency.cambio;
     }
-    if (currency === "GBP") {
-      totalPrice = totalPrice + 3.5;
-    }
-    return totalPrice * (1 + tassazione);
+   
+    return totalPrice.toFixed(2) ;
   };
   const finalizzaVendita = async (arg) => {
     console.log("finalizzaVendita", arg);
@@ -182,6 +190,9 @@ function DialogSellFotos(props) {
               db={props.db}
               checkoutData={checkoutData}
               finalizzaVendita={finalizzaVendita}
+              totalExtras={totalExtras}
+              setTotalExtras={setTotalExtras}
+              paymentCard={paymentCard}
             />
           )}
           {step === 2 && <Text>Vendita effettuata correttamente</Text>}

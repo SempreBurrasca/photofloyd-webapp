@@ -550,6 +550,7 @@ export const addPhotosToClients = async (
   }
 };
 
+
 export const finalizeSale = async (saleData) => {
   try {
     const { cliente, fotoAcquistate, postazione, tassazione, totale } =
@@ -559,22 +560,28 @@ export const finalizeSale = async (saleData) => {
     const user = auth.currentUser;
     const fotografoRef = doc(db, "users", user.uid);
     const now = Timestamp.now();
-
     let saleRef;
     let clientRef;
+    // Generate a custom ID for the new vendite document
+    const postazioneRef = doc(db, "postazioni", postazione);
+    const venditeSnapshot = await getDocs(collection(postazioneRef, "vendite"));
+    const numeroProgressivo = venditeSnapshot.size + 1;
+    const saleId = `${postazione.slice(-5)}-${numeroProgressivo}`;
+
     if (!cliente.clienteID) {
       // Call the addPhotosToClients function
       await addPhotosToClients(
         db,
         postazione,
-        [cliente.nome + " " + cliente.cognome],
+        [cliente.nome],
         fotoAcquistate
       );
       // Update the client's documents
-      clientRef = doc(db, "clienti", cliente.nome + " " + cliente.cognome);
+      clientRef = doc(db, "clienti", cliente.nome );
       await updateDoc(clientRef, { ...cliente });
-      // Create a new document in the vendite collection
-      saleRef = await addDoc(collection(db, "vendite"), {
+      // Create a new document in the vendite collection with a custom ID
+      saleRef = doc(db, "vendite", saleId);
+      await setDoc(saleRef, {
         ...saleData,
         fotografo: fotografoRef,
         data: now,
@@ -585,9 +592,10 @@ export const finalizeSale = async (saleData) => {
         timeout: 2000,
       });
     } else {
-      // Create a new document in the vendite collection
+      // Create a new document in the vendite collection with a custom ID
       clientRef = doc(db, "clienti", cliente.clienteID);
-      saleRef = await addDoc(collection(db, "vendite"), {
+      saleRef = doc(db, "vendite", saleId);
+      await setDoc(saleRef, {
         ...saleData,
         fotografo: fotografoRef,
         data: now,
@@ -606,7 +614,6 @@ export const finalizeSale = async (saleData) => {
     }
 
     // Add the sale to the postazione's vendite subcollection
-    const postazioneRef = doc(db, "postazioni", postazione);
     await setDoc(doc(postazioneRef, "vendite", saleRef.id), { ref: saleRef });
 
     // Add the client to the postazione's clienti subcollection
@@ -678,6 +685,20 @@ export const saveTaxToFirebase = async (db, tax) => {
     });
   }
 };
+export const saveValutaToFirebase = async (valuta) => {
+  const db = getFirestore()
+  try {
+    const productRef = doc(db, "valute", valuta.id);
+    await setDoc(productRef, valuta);
+    ToastQueue.positive("Valuta salvato con successo", {
+      timeout: 500,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare la tassa" + error, {
+      timeout: 500,
+    });
+  }
+};
 
 export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
   try {
@@ -694,6 +715,27 @@ export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
       await setDoc(postazioneRef, { tagDisponibili: tags });
     }
     ToastQueue.positive("Tags salvati con successo", {
+      timeout: 500,
+    });
+  } catch (error) {
+    ToastQueue.negative("Errore nel salvare i tag" + error, {
+      timeout: 500,
+    });
+  }
+};
+export const saveCommissioniToSettingsPostazione = async (commissione, postId,type) => {
+  try {
+    const db = getFirestore();
+    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "commissioni");
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      console.log("exists");
+      await updateDoc(postazioneRef, { [type]: commissione });
+    } else {
+      console.log("not exists");
+      await setDoc(postazioneRef, { [type]: commissione });
+    }
+    ToastQueue.positive("Commissione salvata con successo", {
       timeout: 500,
     });
   } catch (error) {

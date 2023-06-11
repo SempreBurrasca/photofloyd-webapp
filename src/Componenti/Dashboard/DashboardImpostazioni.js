@@ -18,18 +18,24 @@ import {
 import { makeId } from "../../Functions/logicArray";
 import SaveAsFloppy from "@spectrum-icons/workflow/SaveAsFloppy";
 import ProductAddForm from "../../Organismi/Impostazioni/ProductAddForm";
-import { getTagsPostazioneFromFirebase } from "../../Functions/firebaseGetFunctions";
+import { getTagsPostazioneFromFirebase, getValuteDocuments } from "../../Functions/firebaseGetFunctions";
 import TaxAddForm from "../../Organismi/Impostazioni/TaxAddForm";
 import { StateContext } from "../../Context/stateContext";
+import ValutaAddForm from "../../Organismi/Impostazioni/ValutaAddForm";
 
 function DashboardImpostazioni(props) {
   let [tags, setTags] = React.useState("");
   let [tagsP, setTagsP] = React.useState("");
   const { state, dispatch } = useContext(StateContext);
   const [prodotti, setProdotti] = React.useState([]);
-  const [taxes, setTaxes] = React.useState(state.taxes&&state.taxes);
+  const [taxes, setTaxes] = React.useState(state.taxes && state.taxes);
+  const [valute, setValute] = React.useState([]);
 
   useEffect(() => {
+    getValuteDocuments().then((d)=>{
+      setValute(d)
+      console.log(d)
+    })
     getTagsFromFirebase(props.db).then((tags) => {
       let arr = [];
       tags.map((tag) => {
@@ -46,7 +52,7 @@ function DashboardImpostazioni(props) {
     });
     getProductsFromFirebase(props.db).then((prodotti) => {
       setProdotti(prodotti);
-      console.log(prodotti)
+      console.log(prodotti);
     });
   }, []);
   const addOneProductPlaceholder = () => {
@@ -66,6 +72,14 @@ function DashboardImpostazioni(props) {
     };
     setTaxes((prevTaxes) => [...prevTaxes, newTax]);
   };
+  const addOneValutaPlaceholder = () => {
+    const newValuta = {
+      id: makeId(8),
+      symbol: "",
+      cambio: "",
+    };
+    setValute((prevValute) => [...prevValute, newValuta]);
+  };
   return (
     <View padding={10} paddingBottom={50} backgroundColor="gray-200">
       <Flex
@@ -79,7 +93,7 @@ function DashboardImpostazioni(props) {
         <Divider size="M" />
         <Flex direction={"column"} width={"70%"} gap={"size-325"}>
           <Flex direction={"column"} gap={"size-100"}>
-          <Heading level={2}>Tags</Heading>
+            <Heading level={2}>Tags</Heading>
             <Text>
               Inserisci i tag che vuoi che siano disponibili nella creazione
               delle postazioni separati dalla ,
@@ -100,7 +114,8 @@ function DashboardImpostazioni(props) {
           </Flex>
           <Flex direction={"column"} gap={"size-100"}>
             <Text>
-              Inserisci i tag che vuoi che siano disponibili per l'upload delle foto separati dalla ,
+              Inserisci i tag che vuoi che siano disponibili per l'upload delle
+              foto separati dalla ,
             </Text>
             <TextField
               label="Tag delle Foto."
@@ -118,7 +133,7 @@ function DashboardImpostazioni(props) {
           </Flex>
           <Divider size="S" />
           <Flex direction={"column"} gap={"size-125"} alignItems={"center"}>
-          <Heading level={2}>Prodotti</Heading>
+            <Heading level={2}>Prodotti</Heading>
             <Text>
               Inserisci i prodotti che vuoi siano disponibili per tutte le
               postazioni di vendita.
@@ -130,14 +145,25 @@ function DashboardImpostazioni(props) {
           </Flex>
           <Divider size="S" />
           <Flex direction={"column"} gap={"size-125"} alignItems={"center"}>
-          <Heading level={2}>Commissioni</Heading>
+            <Heading level={2}>Commissioni</Heading>
             <Text>
               Inserisci le commissioni che vuoi aggiungere agli ordini nelle tue
               postazioni di vendita.
             </Text>
-            {taxes&&<TaxAddForm taxes={taxes} db={props.db} />}
+            {taxes && <TaxAddForm taxes={taxes} db={props.db} />}
             <ActionButton onPress={addOneTaxPlaceholder}>
               Aggiungi Commissione
+            </ActionButton>
+          </Flex>
+          <Divider size="S" />
+          <Flex direction={"column"} gap={"size-125"} alignItems={"center"}>
+            <Heading level={2}>Valute</Heading>
+            <Text>
+              Aggiungi delle valute e il rispettivo tasso di cambio in EUR.
+            </Text>
+            {valute && <ValutaAddForm valute={valute} db={props.db} />}
+            <ActionButton onPress={addOneValutaPlaceholder}>
+              Aggiungi Valuta
             </ActionButton>
           </Flex>
         </Flex>

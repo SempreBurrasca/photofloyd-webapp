@@ -7,6 +7,8 @@ import {
   Flex,
   Heading,
   NumberField,
+  Radio,
+  RadioGroup,
   Text,
   TextField,
   View,
@@ -19,6 +21,7 @@ import {
   getProductsFromSettingsPostazione,
   getTagsFromFirebase,
   resetUploadCounter,
+  saveCommissioniToSettingsPostazione,
   saveProductsToSettingsPostazione,
   saveTagsPostazioneToFirebase,
   saveTagsToFirebase,
@@ -28,8 +31,10 @@ import { makeId } from "../../Functions/logicArray";
 import SaveAsFloppy from "@spectrum-icons/workflow/SaveAsFloppy";
 import ProductAddForm from "../../Organismi/Impostazioni/ProductAddForm";
 import {
+  getCommissioniPostazione,
   getTagsFromSettingsPostazione,
   getTagsPostazioneFromFirebase,
+  getTasseDocuments,
 } from "../../Functions/firebaseGetFunctions";
 import TaxAddForm from "../../Organismi/Impostazioni/TaxAddForm";
 import { StateContext } from "../../Context/stateContext";
@@ -43,7 +48,12 @@ function PostazioneImpostazioni(props) {
     state.currentPostazione && state.currentPostazione.uploadCounter
   );
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [commissioni, setCommissioni] = useState([]);
+  const [selectedCommissione, setSelectedCommissione] = useState();
   useEffect(() => {
+    getTasseDocuments().then((d) => {
+      setCommissioni(d);
+    });
     getProductsFromFirebase(props.db).then((prodotti) => {
       setProdotti(prodotti);
     });
@@ -70,7 +80,16 @@ function PostazioneImpostazioni(props) {
       }
     });
   }, []);
-  useEffect(() => {}, [tags]);
+  useEffect(() => {
+    getCommissioniPostazione(postazioneId).then((d) => {
+      if (d && d.carta) {
+        setSelectedCommissione(d.carta);
+      }
+    });
+  }, [commissioni]);
+  useEffect(() => {
+    console.log(selectedCommissione);
+  }, [tags, selectedCommissione]);
   const filterObjectsByName = (objects, names) => {
     return objects.filter((object) => names.includes(object.nome));
   };
@@ -129,6 +148,37 @@ function PostazioneImpostazioni(props) {
               }}
             >
               Salva Tags
+            </ActionButton>
+          </Flex>
+          <Divider size="S" />
+          <Flex direction={"column"} gap={"size-100"}>
+            <Heading level={2}>Commissioni</Heading>
+            <Text>
+              Imposta la commissione da aggiungere al pagamento con carta di
+              credito
+            </Text>
+            <RadioGroup
+              label="Commissione Carta di credito"
+              value={selectedCommissione}
+              onChange={setSelectedCommissione}
+            >
+              <Radio value={false}>Nessuna</Radio>
+              {commissioni.map((c) => (
+                <Radio key={makeId(4)} value={c.nome}>
+                  {c.nome} - {c.prezzo * 100}%
+                </Radio>
+              ))}
+            </RadioGroup>
+            <ActionButton
+              onPress={() =>
+                saveCommissioniToSettingsPostazione(
+                  selectedCommissione?commissioni.find((c)=>c.nome===selectedCommissione):false,
+                  postazioneId,
+                  "carta"
+                )
+              }
+            >
+              Salva Commissione
             </ActionButton>
           </Flex>
           <Divider size="S" />

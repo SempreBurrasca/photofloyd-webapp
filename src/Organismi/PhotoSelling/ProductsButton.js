@@ -16,7 +16,6 @@ function ProductsButton(props) {
       ...activeFoto,
       product: getProductById(props.prodotti, key),
     });
-    console.log(getProductById(props.prodotti, key));
   };
   const getProductById = (products, id) => {
     return products.find((product) => product.id === id);

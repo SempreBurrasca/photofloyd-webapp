@@ -56,22 +56,11 @@ function InitialSellStep(props) {
     setActiveFoto,
     addToCart,
   } = props;
-  const navigate = useNavigate();
-  useEffect(() => {}, []);
+  const [stampaPreview, setStampaPreview] = useState(false);
 
-  const handleAction = (key) => {
-    if (key === "cart" && productIsSelected) {
-      if (isSelectedEdit) {
-        addToCart(formatEditSelected());
-      } else {
-        addToCart(activeFoto);
-      }
-    } else if (key === "edit") {
-      setStep(3);
-    } else {
-      window.open(process.env.PUBLIC_URL + "/app#/client-view", "_blank"); //usare navigate per dare la route
-    }
-  };
+  useEffect(() => {
+  }, [activeFoto]);
+
   const formatEditSelected = () => {
     return {
       data: {
@@ -104,10 +93,11 @@ function InitialSellStep(props) {
             isSelectedEdit={isSelectedEdit}
           />
         </Flex>
-        <Flex direction={"column"} gap={"size-115"} flex={5}>
+        <Flex direction={"column"} gap={"size-115"} flex={5} alignItems={"stretch"}>
           <Fotografia
             key={activeFoto.id}
             foto={activeFoto}
+            updateFoto={setActiveFoto}
             objectFit="contain"
             height={"50vh"}
             postazioneId={props.postazioneId}
@@ -116,7 +106,10 @@ function InitialSellStep(props) {
             setEditSelected={setEditSelected}
             editSelected={editSelected}
           />
-          <ActionButton isDisabled={!productIsSelected} onPress={()=>addToCart(activeFoto)}>
+          <ActionButton
+            isDisabled={!productIsSelected}
+            onPress={() => addToCart(activeFoto)}
+          >
             <ShoppingCart />
             Aggiungi al carrello
           </ActionButton>

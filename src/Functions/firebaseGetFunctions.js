@@ -190,6 +190,16 @@ export const getTasseDocuments = async () => {
   }));
   return documents;
 };
+export const getValuteDocuments = async () => {
+  const db = getFirestore();
+  const tasseCollection = collection(db, "valute");
+  const querySnapshot = await getDocs(tasseCollection);
+  const documents = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  return documents;
+};
 
 export const getTagsFromSettingsPostazione = async (postId) => {
   try {
@@ -207,3 +217,19 @@ export const getTagsFromSettingsPostazione = async (postId) => {
     console.error(error);
   }
 };
+
+export const getCommissioniPostazione =async (postId)=> {
+  try {
+    const db = getFirestore();
+    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "commissioni");
+    const docSnapshot = await getDoc(postazioneRef);
+    if (docSnapshot.exists()) {
+      return docSnapshot.data();
+    } else {
+      throw new Error("Commissioni document does not exist");
+    }
+  } catch (error) {
+    console.error("Error retrieving commissioni document:", error);
+    throw error;
+  }
+}

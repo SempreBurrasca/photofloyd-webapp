@@ -5,6 +5,7 @@ export const initialState = {
   isAuth: false,
   userId: null,
   taxes: null,
+  valute: null,
   isUpload: false,
   statusUpload: {
     label: "Caricamento in corso",
