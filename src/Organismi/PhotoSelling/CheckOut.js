@@ -61,15 +61,33 @@ function CheckOut(props) {
   const [valute, setValute] = useState([]);
   const [contantiRicevuti, setContantiRicevuti] = useState();
   const [clientData, setClientData] = useState();
+  const [isSped, setIsSped] = useState(false);
+  const [datiSpedizione, setDatiSpedizione] = useState({});
   useEffect(() => {
     getClienti(props.db, postazioneId, setClienti);
     getValuteDocuments().then((d) => {
       setValute(d);
-      console.log(d);
     });
   }, []);
+
+  useEffect(() => {
+    props.cartFotos.forEach((f) => {
+      if (f.product.isSpedizione) {
+        setIsSped(true);
+      }
+    });
+  }, [props.cartFotos]);
   const handleSelection = (e) => {
     setSelectedClient(e);
+  };
+  const checkIsSped = (arr) => {
+    let check = false;
+    arr.forEach((a) => {
+      if (a.product.isSpedizione) {
+        check = true;
+      }
+    });
+    return check;
   };
   const handleCheckout = () => {
     finalizzaVendita({
@@ -78,6 +96,7 @@ function CheckOut(props) {
         nome: nome,
         stanza: stanza,
         codiceFiscale: codiceFiscale,
+        datiSpedizione: datiSpedizione,
         email: email,
         data: {
           start: new Date(
@@ -96,11 +115,14 @@ function CheckOut(props) {
       totale: totalOfProducts(),
       postazione: postazioneId,
       paymentCard: paymentCard,
+      statusSpedizione: checkIsSped(props.cartFotos)
+        ? "Da Spedire"
+        : "No Spedizione",
     });
   };
   return (
     <Flex direction={"column"} gap={"size-125"}>
-      <View overflow={"auto"} maxHeight={"55vh"}>
+      <View overflow={"auto"}>
         <Flex justifyContent={"space-evenly"} gap={"size-100"}>
           <Flex direction={"column"} gap={"size-125"} flex={1}>
             <Text>Nel carrello ci sono {props.cartFotos.length} prodotti</Text>
@@ -148,7 +170,6 @@ function CheckOut(props) {
                               <Tooltip>File Digitale</Tooltip>
                             </TooltipTrigger>
                           )}
-                          {console.log(foto.product)}
                           {foto.product.isStampa &&
                           foto.product.orientation &&
                           foto.product.orientation === "horizontal" ? (
@@ -257,6 +278,7 @@ function CheckOut(props) {
                 isRequired
                 width={"100%"}
                 onChange={setNome}
+                value={nome}
               />
               <Flex gap="size-100">
                 <TextField
@@ -289,13 +311,71 @@ function CheckOut(props) {
                 width={"100%"}
                 onChange={setCodiceFiscal}
               />
+              {isSped && <Divider size="S" />}
+              {isSped && (
+                <Flex direction="column" gap="size-100">
+                  <Flex gap="size-100">
+                    <TextField
+                      label="Città"
+                      isRequired
+                      width={"100%"}
+                      onChange={(value) =>
+                        setDatiSpedizione({ ...datiSpedizione, citta: value })
+                      }
+                      flex={1}
+                    />
+                    <TextField
+                      label="Cap"
+                      isRequired
+                      width={"100%"}
+                      onChange={(value) =>
+                        setDatiSpedizione({ ...datiSpedizione, cap: value })
+                      }
+                      flex={1}
+                    />
+                    <TextField
+                      label="Indirizzo Spedizione"
+                      flex={4}
+                      isRequired
+                      width={"100%"}
+                      onChange={(value) =>
+                        setDatiSpedizione({
+                          ...datiSpedizione,
+                          indirizzo: value,
+                        })
+                      }
+                    />
+                  </Flex>
+                  <TextField
+                    label="Note"
+                    width={"100%"}
+                    onChange={(value) =>
+                      setDatiSpedizione({ ...datiSpedizione, note: value })
+                    }
+                  />
+                </Flex>
+              )}
               <Checkbox>Accetta i Termini e Condizioni</Checkbox>
-              <Checkbox>Accetta di condividere le proprie foto per la pubblicazione sui social</Checkbox>
+              <Checkbox>
+                Accetta di condividere le proprie foto per la pubblicazione sui
+                social
+              </Checkbox>
             </Flex>
           </Flex>
         </Flex>
       </View>
-      <Button variant="cta" onPress={handleCheckout} isDisabled={!nome||!codiceFiscale||!clientData||!stanza||!email}>
+      <Button
+        variant="cta"
+        onPress={handleCheckout}
+        isDisabled={
+          !nome ||
+          !codiceFiscale ||
+          !clientData ||
+          !stanza ||
+          !email
+         
+        }
+      >
         Conferma Acquisto
       </Button>
     </Flex>

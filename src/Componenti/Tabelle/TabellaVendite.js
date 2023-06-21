@@ -20,6 +20,8 @@ import {
   Header,
   Heading,
   Well,
+  DateRangePicker,
+  Badge,
 } from "@adobe/react-spectrum";
 import Edit from "@spectrum-icons/workflow/Edit";
 import Search from "@spectrum-icons/workflow/Search";
@@ -32,35 +34,91 @@ function TabellaVendite(props) {
   const navigate = useNavigate();
   const { vendite } = props;
   const [search, setSearch] = React.useState();
-  const [filteredVendite,setFilteredVendite]=React.useState(vendite)
+  const [filteredVendite, setFilteredVendite] = React.useState(vendite);
+  const [dateRange, setDateRange] = React.useState();
 
-  useEffect(()=>{
-    if(search&&search.length>3){
-      const filteredVendite = vendite.filter((vendita) => {
-        const postazioneMatch = vendita.postazione.toLowerCase()
-        .includes(search.toLowerCase());
-        const emailMatch = vendita.cliente.email
-          .toLowerCase()
-          .includes(search.toLowerCase());
+  useEffect(() => {
+    if (search || (dateRange && filteredVendite)) {
+      const filteredVendite_ = filteredVendite.filter((vendita) => {
+        if (search) {
+          const postazioneMatch = vendita.postazione
+            .toLowerCase()
+            .includes(search.toLowerCase());
+          const emailMatch = vendita.cliente.email
+            .toLowerCase()
+            .includes(search.toLowerCase());
           const clienteMatch = vendita.cliente.name
-          .toLowerCase()
-          .includes(search.toLowerCase());
+            .toLowerCase()
+            .includes(search.toLowerCase());
           const fotografoMatch = vendita.fotografo.displayName
-          .toLowerCase()
-          .includes(search.toLowerCase());
+            .toLowerCase()
+            .includes(search.toLowerCase());
           const idMatch = vendita.id
-          .toLowerCase()
-          .includes(search.toLowerCase());
-        return postazioneMatch || emailMatch || clienteMatch || fotografoMatch || idMatch;
-      });
-      setFilteredVendite(filteredVendite);
-    }
-  },[search,vendite])
+            .toLowerCase()
+            .includes(search.toLowerCase());
+          const spedMatch = vendita.statusSpedizione
+            ? vendita.statusSpedizione
+                .toLowerCase()
+                .includes(search.toLowerCase())
+            : false;
 
+          return (
+            postazioneMatch ||
+            emailMatch ||
+            clienteMatch ||
+            fotografoMatch ||
+            idMatch ||
+            spedMatch
+          );
+        }
+        if (dateRange) {
+          function convertDate(obj) {
+            const day = obj.day;
+            const month = obj.month;
+            const year = obj.year;
+
+            return `${day}/${month}/${year}`;
+          }
+          const dateVendita = new Date(
+            vendita.data.seconds * 1000 + vendita.data.nanoseconds / 1000000
+          );
+          let dateMatch =
+            dateVendita >= new Date(convertDate(dateRange.start)) &&
+            dateVendita <= new Date(convertDate(dateRange.end));
+          console.log(
+            dateVendita,
+            new Date(convertDate(dateRange.start)),
+            new Date(convertDate(dateRange.end))
+          );
+          return dateMatch;
+        }
+      });
+      setFilteredVendite(filteredVendite_);
+    } else {
+      setFilteredVendite(vendite);
+    }
+  }, [search, vendite, dateRange]);
+  const totalOfVendite = () => {
+    let totale = 0;
+    filteredVendite.forEach((v) => {
+      console.log(v.totale);
+      totale += parseFloat(v.totale);
+    });
+    return totale.toFixed(2);
+  };
   const formatDate = (data) => {
     const timestamp = new Timestamp(data.seconds, data.nanoseconds);
     const date = timestamp.toDate();
     return date.toLocaleDateString();
+  };
+  const checkIsSped = (arr) => {
+    let check = false;
+    arr.forEach((a) => {
+      if (a.product.isSpedizione) {
+        check = true;
+      }
+    });
+    return check;
   };
   return (
     <Flex
@@ -69,13 +127,22 @@ function TabellaVendite(props) {
       gap={"size-200"}
       width={"90%"}
     >
-      <TextField
-        label="Ricerca"
-        icon={<Search />}
-        width="80vw"
-        value={search}
-        onChange={setSearch}
-      />
+      <Flex gap="size-100" width={"100%"}>
+        <TextField
+          label="Ricerca"
+          icon={<Search />}
+          flex={2}
+          value={search}
+          onChange={setSearch}
+        />
+        <DateRangePicker
+          label="Ricerca per data"
+          flex={1}
+          value={dateRange}
+          onChange={setDateRange}
+          shouldFlip
+        />
+      </Flex>
       {vendite.length > 0 ? (
         <TableView
           height="100%"
@@ -92,7 +159,6 @@ function TabellaVendite(props) {
             <Column allowsResizing align="start">
               Postazione
             </Column>
-
             <Column allowsResizing align="start">
               Cliente
             </Column>
@@ -101,6 +167,9 @@ function TabellaVendite(props) {
             </Column>
             <Column allowsResizing align="end">
               Totale
+            </Column>
+            <Column allowsResizing align="center">
+              Spedizione
             </Column>
             <Column allowsResizing align="end">
               Vedi
@@ -112,22 +181,51 @@ function TabellaVendite(props) {
                 <Cell align="end">{formatDate(vendita.data)}</Cell>
                 <Cell align="start">{vendita.id}</Cell>
                 <Cell align="start">{vendita.postazione}</Cell>
-
                 <Cell align="start">{vendita.cliente.name}</Cell>
                 <Cell align="start">{vendita.fotografo.displayName}</Cell>
                 <Cell align="start">€{vendita.totale}</Cell>
+                <Cell align="center">
+                  {checkIsSped(vendita.fotoAcquistate) ? (
+                    <Badge
+                      variant={
+                        vendita.statusSpedizione === "Spedito"
+                          ? "positive"
+                          : "info"
+                      }
+                    >
+                      {vendita.statusSpedizione === "Spedito"
+                        ? "Spedito"
+                        : "Da Spedire"}
+                    </Badge>
+                  ) : (
+                    "No Spedizione"
+                  )}
+                </Cell>
                 <Cell>
-                  <DialogTrigger>
-                    <ActionButton>
-                      <Info />
-                    </ActionButton>
-                    {(close) => (
-                      <DialogInfoVendita vendita={vendita} close={close} />
-                    )}
-                  </DialogTrigger>
+                  <Flex gap="size-100">
+                    <DialogTrigger>
+                      <ActionButton>
+                        <Info />
+                      </ActionButton>
+                      {(close) => (
+                        <DialogInfoVendita vendita={vendita} close={close} />
+                      )}
+                    </DialogTrigger>
+                  </Flex>
                 </Cell>
               </Row>
             ))}
+            <Row>
+              <Cell align="end"></Cell>
+              <Cell align="start"></Cell>
+              <Cell align="start"></Cell>
+              <Cell align="start"></Cell>
+              <Cell align="start"></Cell>
+
+              <Cell align="start">€{totalOfVendite()}</Cell>
+              <Cell align="start"></Cell>
+              <Cell></Cell>
+            </Row>
           </TableBody>
         </TableView>
       ) : (

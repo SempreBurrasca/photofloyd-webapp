@@ -2,18 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Flex,
-  Cell,
-  Column,
-  Row,
-  TableView,
-  TableBody,
-  TableHeader,
-  ActionButton,
   View,
-  Checkbox,
-  CheckboxGroup,
-  TextField,
-  DialogTrigger,
   Dialog,
   Button,
   ButtonGroup,
@@ -22,19 +11,23 @@ import {
   Header,
   Heading,
   Text,
-  Switch,
+  Tooltip,
+  TooltipTrigger,
   Image,
+  Well,
+  Badge,
+  ActionButton,
 } from "@adobe/react-spectrum";
-import Edit from "@spectrum-icons/workflow/Edit";
-import Search from "@spectrum-icons/workflow/Search";
-import {
-  getAllPostazioni,
-  updateUser,
-} from "../../Functions/firebaseFunctions";
 import { Timestamp } from "firebase/firestore";
-
+import Print from "@spectrum-icons/workflow/Print";
+import Mailbox from "@spectrum-icons/workflow/Mailbox";
+import Portrait from "@spectrum-icons/workflow/Portrait";
+import Landscape from "@spectrum-icons/workflow/Landscape";
+import FullScreen from "@spectrum-icons/workflow/FullScreen";
+import Data from "@spectrum-icons/workflow/Data";
+import { updateSaleStatus } from "../../Functions/firebaseFunctions";
+import { makeId } from "../../Functions/logicArray";
 function DialogInfoVendita(props) {
-  const navigate = useNavigate();
   const { user, close, vendita } = props;
 
   useEffect(() => {
@@ -46,6 +39,15 @@ function DialogInfoVendita(props) {
     const date = timestamp.toDate();
     return date.toLocaleDateString();
   };
+  const checkIsSped = (arr) => {
+    let check = false;
+    arr.forEach((a) => {
+      if (a.product.isSpedizione) {
+        check = true;
+      }
+    });
+    return check;
+  };
 
   return (
     <Dialog>
@@ -55,26 +57,71 @@ function DialogInfoVendita(props) {
       </Header>
       <Divider />
       <Content>
-        <Text>Report Vendita</Text>
+        <Flex gap={"size-100"} alignItems={"center"}>
+          <Text>Report Vendita</Text>
+          {checkIsSped(vendita.fotoAcquistate) && (
+            <Badge variant={vendita.statusSpedizione==="Spedito" ? "positive" : "info"}>
+              {vendita.statusSpedizione==="Spedito" ? "Spedito" : "Da Spedire"}
+            </Badge>
+          )}
+        </Flex>
         <Flex gap={"size-250"}>
-          <Flex direction="column" gap="size-100" flex={3}>
+          <Flex direction="column" gap="size-100" flex={1}>
             <Heading level={4}>Ordine</Heading>
-            {vendita.fotoAcquistate.map((ordine) => (
-              <View key={ordine.id} maxHeight={"400px"}>
-              <Flex gap={"size-100"}  alignItems={"center"}>
-                <Flex gap={"size-100"}>
-                  <Image src={ordine.data.url} height="50px" width="50px" />
-                </Flex>
-                <Flex direction={"column"} gap={"size-100"}>
-                  <Flex gap={"size-50"}>
-                    <Text>{ordine.id}</Text>
+            {vendita.fotoAcquistate.map((ordine, index) => (
+              <View key={ordine.id + "-" + makeId(5)} maxHeight={"400px"}>
+                <Flex gap={"size-100"} alignItems={"center"}>
+                  <span>{index + 1}</span>
+                  <Flex gap={"size-100"}>
+                    <Image src={ordine.data.url} height="50px" width="50px" />
                   </Flex>
-                  <Flex gap={"size-50"}>
-                    <Text>{ordine.product.nome}</Text>
-                    <Text>€{ordine.product.prezzo}</Text>
+                  <Flex direction={"column"} gap={"size-10"}>
+                    <Flex gap={"size-50"}>
+                      <Text>{ordine.id}</Text>
+                    </Flex>
+                    <Flex gap={"size-50"}>
+                      <Text>{ordine.product.nome}</Text>
+                      <Text>€{ordine.product.prezzo}</Text>
+                    </Flex>
+                    <Flex gap="size-100">
+                      {ordine.product.isStampa ? (
+                        <TooltipTrigger delay={0}>
+                          <Print size="S" />
+                          <Tooltip>Stampa</Tooltip>
+                        </TooltipTrigger>
+                      ) : (
+                        <TooltipTrigger delay={0}>
+                          <Data size="S" />
+                          <Tooltip>File Digitale</Tooltip>
+                        </TooltipTrigger>
+                      )}
+                      {ordine.product.isStampa &&
+                      ordine.product.orientation &&
+                      ordine.product.orientation === "horizontal" ? (
+                        <TooltipTrigger delay={0}>
+                          <Landscape size="S" />
+                          <Tooltip>Formato Orizzontale</Tooltip>
+                        </TooltipTrigger>
+                      ) : (
+                        <TooltipTrigger delay={0}>
+                          <Portrait size="S" />
+                          <Tooltip>Formato Verticale</Tooltip>
+                        </TooltipTrigger>
+                      )}
+                      {ordine.product.isStampa && ordine.product.fillCanvas && (
+                        <TooltipTrigger>
+                          <FullScreen size="S" />
+                          <Tooltip>Cover Fit</Tooltip>
+                        </TooltipTrigger>
+                      )}
+                      {ordine.product.isSpedizione && (
+                        <TooltipTrigger>
+                          <Mailbox size="S" />
+                        </TooltipTrigger>
+                      )}
+                    </Flex>
                   </Flex>
                 </Flex>
-              </Flex>
               </View>
             ))}
             <Divider size="S" />
@@ -86,13 +133,31 @@ function DialogInfoVendita(props) {
           <Flex direction="column" gap="size-100" flex={1}>
             <Flex direction="column" gap="size-100">
               <Heading level={4}>Cliente</Heading>
-              <Text>
-                {vendita.cliente.nome} - {vendita.cliente.cognome}
-              </Text>
-              <Text>{vendita.cliente.codiceFiscale}</Text>
-              <Text>{vendita.cliente.email}</Text>
-              {vendita.cliente.id && (
-                <Text>ID utente :{vendita.cliente.id}</Text>
+              <Text>Nome: {vendita.cliente.nome}</Text>
+              <Text>Codice Fiscale: {vendita.cliente.codiceFiscale}</Text>
+              <Text>Email: {vendita.cliente.email}</Text>
+              {checkIsSped(vendita.fotoAcquistate) && vendita.statusSpedizione&&(
+                <Flex direction={"column"} gap="size-100">
+                  <Divider size="S" />
+                  <Text>
+                    Spedizione: {vendita.cliente.datiSpedizione.citta},
+                    {vendita.cliente.datiSpedizione.indirizzo},
+                    {vendita.cliente.datiSpedizione.cap}
+                  </Text>
+                  <Well>
+                    Note di spedizione: {vendita.cliente.datiSpedizione.note}
+                  </Well>
+                  {vendita.cliente.id && (
+                    <Text>ID utente :{vendita.cliente.id}</Text>
+                  )}
+                  <ActionButton
+                    onPress={() => {
+                      updateSaleStatus(vendita.id, "Spedito");
+                    }}
+                  >
+                    Conferma avvenuta spedizione
+                  </ActionButton>
+                </Flex>
               )}
             </Flex>
             <Divider size="M" />

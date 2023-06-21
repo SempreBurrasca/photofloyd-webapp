@@ -34,6 +34,7 @@ function CardFoto(props) {
     display,
     fotoToEdit,
     setFotoToEdit,
+    isSelectedMode,
     setOpenEditDialog,
   } = props;
   const [edits, setEdits] = useState([]);
@@ -91,7 +92,7 @@ function CardFoto(props) {
           selectedFotografie.includes(foto) ? "blue-400" : "static-white"
         }
         position={"relative"}
-        width={"250px"}
+        width={isSelectedMode?"100px":"250px"}
       >
         <div
           style={{ cursor: "pointer" }}

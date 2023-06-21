@@ -4,57 +4,32 @@ import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import LayoutConHeader from "../../Layouts/LayoutConHeader";
 import {
-  ActionButton,
-  ActionGroup,
-  Button,
-  ButtonGroup,
-  Content,
-  Dialog,
-  DialogContainer,
-  DialogTrigger,
   Divider,
   Flex,
   Grid,
-  Header,
-  Heading,
   Item,
-  Switch,
   TabList,
   TabPanels,
   Tabs,
-  Text,
   View,
-  Well,
 } from "@adobe/react-spectrum";
-import Label from "@spectrum-icons/workflow/Label";
-import Shop from "@spectrum-icons/workflow/Shop";
-import Delete from "@spectrum-icons/workflow/Delete";
-import ImageAdd from "@spectrum-icons/workflow/ImageAdd";
+
 import GrigliaFotografie from "../../Componenti/Fotografie/GrigliaFotografie";
 import { ToastQueue } from "@react-spectrum/toast";
 import {
   getPostazioneDoc,
   getTagsFromFirebase,
 } from "../../Functions/firebaseFunctions";
-import DialogAddTag from "./DialogAddTag";
-import DialogDeleteFotos from "./DialogDeleteFotos";
-import LabelFilter from "../../Organismi/Sidebar/LabelFilter";
-import DialogSellFotos from "./DialogSellFotos";
-import DialogAddToClient from "./DialogAddToClient";
-import FolderUser from "@spectrum-icons/workflow/FolderUser";
-import ClientFilter from "../../Organismi/Sidebar/ClientFilter";
-import DialogEditFoto from "./DialogEditFoto";
-import TabellaVenditePostazione from "../../Componenti/Tabelle/TabellaVenditePostazione";
+
 import {
   getSalesByPostazione,
   getTagsFromSettingsPostazione,
 } from "../../Functions/firebaseGetFunctions";
 import PostazioneImpostazioni from "./PostazioneImpostazioni";
 import { StateContext } from "../../Context/stateContext";
-import TagsFilter from "../../Organismi/Sidebar/TagsFilter";
-import DataFilter from "../../Organismi/Sidebar/DataFilter";
-import DialogUploadFoto from "../../Organismi/Dialogs/DialogUploadFoto";
-import FotografoFilter from "../../Organismi/Sidebar/FotografoFilter";
+import SidebarFilter from "./Sidebar/SidebarFilter.js";
+import SidebarActions from "./Sidebar/SidebarActions";
+import ContentHeading from "./Content/ContentHeading";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -71,7 +46,8 @@ function Postazione(props) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [fotoToEdit, setFotoToEdit] = useState({});
   const [vendite, setVendite] = useState([]);
-  const [isWebkitDirectory, setIsWebkitDirectory] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [reset, setReset] = useState(false);
   React.useEffect(() => {
     setSelectedFotos([]);
     setCartFotos([]);
@@ -104,140 +80,71 @@ function Postazione(props) {
       }
     });
   }, []);
+
   useEffect(() => {
     getSalesByPostazione(postazioneId).then((vendite) => {
       setVendite(vendite);
     });
   }, [openSellDialog]);
+
   useEffect(() => {
     console.log(state);
   }, [state]);
+
+  const resetFilter = () => {
+    dispatch({
+      type: "SET_FILTER_TAGS",
+      tags: false,
+    });
+    dispatch({
+      type: "SET_FILTER_CLIENT",
+      tags: false,
+    });
+    dispatch({
+      type: "SET_FILTER_LABEL",
+      tags: false,
+    });
+    dispatch({
+      type: "SET_FILTER_DATA",
+      tags: false,
+    });
+    dispatch({
+      type: "SET_FILTER_FOTOGRAFO",
+      tags: false,
+    });
+    setReset(true);
+  };
 
   return (
     <LayoutConHeader>
       <Grid
         areas={["sidebar divider content"]}
-        columns={["1.2fr", "0.03fr", "8fr"]}
+        columns={["1.5fr", "0.03fr", "8fr"]}
         gap="size-100"
         margin={10}
       >
         <View gridArea="sidebar" overflow={"hidden"}>
           <Flex direction="column" gap="size-200">
-            <Flex direction="column" gap="size-100">
-              {selectedFotos.length > 0 ? (
-                <Well>
-                  <Text>
-                    {selectedFotos.length} foto selezionate.
-                    <br />
-                    Utilizza i tasti qui sotto per compiere operazioni su queste
-                    foto.
-                  </Text>
-                </Well>
-              ) : (
-                <Text>
-                  Seleziona una o più foto per operare azioni multiple.
-                </Text>
-              )}
-
-              <ActionGroup
-                orientation="vertical"
-                isJustified
-                density="compact"
-                isDisabled={selectedFotos.length === 0}
-                onAction={(key) => {
-                  key === "sellFotos" && setOpenSellDialog(true);
-                }}
-              >
-                <DialogTrigger>
-                  <Item key="addTag">
-                    <Label />
-                  </Item>
-                  {(close) => (
-                    <DialogAddTag
-                      close={close}
-                      selectedFotos={selectedFotos}
-                      db={props.db}
-                      postazioneId={postazioneId}
-                      setSelectedFotos={(e) => setSelectedFotos(e)}
-                      availableTags={availableTags}
-                    />
-                  )}
-                </DialogTrigger>
-                <DialogTrigger>
-                  <Item key="addToClient">
-                    <FolderUser />
-                  </Item>
-                  {(close) => (
-                    <DialogAddToClient
-                      close={close}
-                      selectedFotos={selectedFotos}
-                      db={props.db}
-                      postazioneId={postazioneId}
-                      setSelectedFotos={(e) => setSelectedFotos(e)}
-                    />
-                  )}
-                </DialogTrigger>
-
-                <Item key="sellFotos">
-                  <Shop />
-                </Item>
-
-                <DialogTrigger>
-                  <Item key="deleteFotos">
-                    <Delete />
-                  </Item>
-                  {(close) => (
-                    <DialogDeleteFotos
-                      close={close}
-                      selectedFotos={selectedFotos}
-                      db={props.db}
-                      postazioneId={postazioneId}
-                      setSelectedFotos={(e) => setSelectedFotos(e)}
-                    />
-                  )}
-                </DialogTrigger>
-              </ActionGroup>
-              {openSellDialog && (
-                <DialogContainer type="fullscreen">
-                  <DialogSellFotos
-                    close={() => setOpenSellDialog(false)}
-                    selectedFotos={selectedFotos}
-                    db={props.db}
-                    postazioneId={postazioneId}
-                    setSelectedFotos={(e) => setSelectedFotos(e)}
-                    cartFotos={cartFotos}
-                    setCartFotos={setCartFotos}
-                  />
-                </DialogContainer>
-              )}
-            </Flex>
+            <SidebarActions
+              selectedFotos={selectedFotos}
+              setOpenSellDialog={setOpenSellDialog}
+              setIsEditMode={setIsEditMode}
+              db={props.db}
+              setSelectedFotos={setSelectedFotos}
+              availableTags={availableTags}
+              openSellDialog={openSellDialog}
+              cartFotos={cartFotos}
+              setCartFotos={setCartFotos}
+            />
             <Divider size="M" />
-            <View overflow={"auto"} maxHeight={"50vh"} paddingBottom={50}>
-              <Flex direction="column" gap="size-100">
-                <Heading margin={0}>Filtra e Ricerca</Heading>
-                <ClientFilter
-                  db={props.db}
-                  postazioneId={postazioneId}
-                  filteredPhotos={filteredPhotos}
-                  setFilteredPhotos={setFilteredPhotos}
-                />
-                <FotografoFilter db={props.db} postazioneId={postazioneId} />
-                <DataFilter />
-                <TagsFilter
-                  db={props.db}
-                  postazioneId={postazioneId}
-                  filteredPhotos={filteredPhotos}
-                  setFilteredPhotos={setFilteredPhotos}
-                  availableTags={availableTags}
-                  setAvailableTags={setAvailableTags}
-                />
-                <LabelFilter
-                  db={props.db}
-                  postazioneId={postazioneId}
-                  filteredPhotos={filteredPhotos}
-                  setFilteredPhotos={setFilteredPhotos}
-                />
-              </Flex>
+            <View overflow={"auto"} paddingBottom={50}>
+              <SidebarFilter
+                db={props.db}
+                filteredPhotos={filteredPhotos}
+                setFilteredPhotos={setFilteredPhotos}
+                availableTags={availableTags}
+                setAvailableTags={setAvailableTags}
+              />
             </View>
           </Flex>
         </View>
@@ -246,51 +153,16 @@ function Postazione(props) {
 
         <View gridArea="content" overflow={"auto"}>
           <Flex direction="column" gap="size-200" justifyContent={"center"}>
-            <Flex gap="size-200" alignItems={"center"} justifyContent="start">
-              {openEditDialog && (
-                <DialogContainer type="fullscreen">
-                  <DialogEditFoto
-                    close={() => setOpenEditDialog(false)}
-                    fotoToEdit={fotoToEdit}
-                    db={props.db}
-                    postazioneId={postazioneId}
-                    setSelectedFotos={(e) => setFotoToEdit(e)}
-                  />
-                </DialogContainer>
-              )}
-              <Flex direction="column" gap="size-100">
-                {/*<Flex gap="size-100" justifyContent="start">
-                  <a>Home{">"} </a>
-                  <span>{postazione && postazione.name}</span>
-                </Flex>*/}
-                <h2>{postazione && postazione.name}</h2>
-                <span>
-                  {state.currentPostazione &&
-                    state.currentPostazione.uploadCounter &&
-                    "Upload effettuati: " +
-                      state.currentPostazione.uploadCounter}
-                </span>
-                {/*postazione && (
-                  <TagGroup items={postazione.tag} aria-label="Tag ">
-                    {(item, index) => (
-                      <Item key={item.id + "-" + makeId(3)}>{item.name}</Item>
-                    )}
-                  </TagGroup>
-                    )*/}
-              </Flex>
-              <DialogTrigger>
-                <ActionButton>
-                  <ImageAdd /> IMPORTA FOTO
-                </ActionButton>
-                {(close) => (
-                  <DialogUploadFoto
-                    close={close}
-                    availableTags={availableTags}
-                    db={props.db}
-                  />
-                )}
-              </DialogTrigger>
-            </Flex>
+            <ContentHeading
+              openEditDialog={openEditDialog}
+              setOpenEditDialog={setOpenEditDialog}
+              fotoToEdit={fotoToEdit}
+              db={props.db}
+              postazioneId={postazioneId}
+              setFotoToEdit={setFotoToEdit}
+              postazione={postazione}
+              availableTags={availableTags}
+            />
             <Tabs
               aria-label="Menu della dashboard generale"
               isEmphasized
@@ -313,6 +185,7 @@ function Postazione(props) {
                     fotoToEdit={fotoToEdit}
                     setFotoToEdit={setFotoToEdit}
                     setOpenEditDialog={setOpenEditDialog}
+                    isEditMode={isEditMode}
                   />
                 </Item>
                 <Item key="Impostazioni">
@@ -321,9 +194,9 @@ function Postazione(props) {
                     postazioneId={postazioneId}
                   />
                 </Item>
-                <Item key="Finanze">
+                {/* <Item key="Finanze">
                   <TabellaVenditePostazione vendite={vendite} />
-                </Item>
+                </Item>*/}
               </TabPanels>
             </Tabs>
           </Flex>

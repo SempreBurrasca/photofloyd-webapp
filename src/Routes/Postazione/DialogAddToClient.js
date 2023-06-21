@@ -37,7 +37,6 @@ function DialogAddToClient(props) {
     getClienti(props.db, props.postazioneId, setClients);
   }, []);
   const handleSelection = (e) => {
-    console.log(e);
     setSelectedClients([e]);
   };
   return (
@@ -81,14 +80,16 @@ function DialogAddToClient(props) {
                   flex={2}
                   value={clientStanza}
                   onChange={setClientStanza}
+                  isRequired
                 />
               </Flex>
               <Flex gap="size-200" alignItems="end">
                 <TextField
-                  label="Codice Fiscale"
+                  label="Numero di Telefono"
                   flex={2}
                   value={clientCF}
                   onChange={setClientCF}
+                  isRequired
                 />
               </Flex>
               <Flex gap="size-200" alignItems="end">
@@ -97,6 +98,7 @@ function DialogAddToClient(props) {
                   flex={2}
                   value={clientMail}
                   onChange={setClientMail}
+                  isRequired
                 />
               </Flex>
               <Flex gap="size-200" alignItems="end">
@@ -107,6 +109,7 @@ function DialogAddToClient(props) {
                   value={clientData}
                   onChange={setClientData}
                   shouldFlip
+                  isRequired
                 />
               </Flex>
             </Flex>
@@ -121,7 +124,7 @@ function DialogAddToClient(props) {
         </Button>
         <Button
           variant="accent"
-          isDisabled={exist ? !selectedClients : !clientName}
+          isDisabled={exist ? !selectedClients : (!clientName||!clientData||!clientMail||!clientStanza||!clientCF)}
           onPress={() => {
             addPhotosToClients(
               props.db,
@@ -143,7 +146,7 @@ function DialogAddToClient(props) {
                     clientData.end.day
                   ),
                 },
-                cf: clientCF,
+                telefono: clientCF,
               }
             ).then((e) => {
               props.setSelectedFotos([]);

@@ -340,7 +340,7 @@ export const getProductsFromFirebase = async (db) => {
     const products = [];
     const querySnapshot = await getDocs(collection(db, "prodotti"));
     querySnapshot.forEach((doc) => {
-      products.push({...doc.data(),doc:doc.ref});
+      products.push({ ...doc.data(), doc: doc.ref });
     });
     return products;
   } catch (error) {
@@ -550,7 +550,6 @@ export const addPhotosToClients = async (
   }
 };
 
-
 export const finalizeSale = async (saleData) => {
   try {
     const { cliente, fotoAcquistate, postazione, tassazione, totale } =
@@ -570,14 +569,9 @@ export const finalizeSale = async (saleData) => {
 
     if (!cliente.clienteID) {
       // Call the addPhotosToClients function
-      await addPhotosToClients(
-        db,
-        postazione,
-        [cliente.nome],
-        fotoAcquistate
-      );
+      await addPhotosToClients(db, postazione, [cliente.nome], fotoAcquistate);
       // Update the client's documents
-      clientRef = doc(db, "clienti", cliente.nome );
+      clientRef = doc(db, "clienti", cliente.nome);
       await updateDoc(clientRef, { ...cliente });
       // Create a new document in the vendite collection with a custom ID
       saleRef = doc(db, "vendite", saleId);
@@ -586,6 +580,7 @@ export const finalizeSale = async (saleData) => {
         fotografo: fotografoRef,
         data: now,
         cliente: clientRef,
+        
       });
       await setDoc(doc(clientRef, "vendite", saleRef.id), { ref: saleRef });
       ToastQueue.positive("Vendita Effettuata", {
@@ -627,7 +622,18 @@ export const finalizeSale = async (saleData) => {
     });
   }
 };
-
+export const updateSaleStatus = async (id, status) => {
+  try {
+    const db = getFirestore();
+    const saleRef = doc(db, "vendite", id);
+    await updateDoc(saleRef, { statusSpedizione: status });
+    console.log("Sale status updated successfully");
+    ToastQueue.positive("Stato spedizione aggiornato",{timeout:500})
+  } catch (error) {
+    ToastQueue.negative("Stato spedizione non eggiornato",{timeout:500})
+    console.log(error)
+  }
+};
 export const saveTagsPostazioneToFirebase = async (db, tagsString) => {
   try {
     const tags = tagsString.split(",");
@@ -686,7 +692,7 @@ export const saveTaxToFirebase = async (db, tax) => {
   }
 };
 export const saveValutaToFirebase = async (valuta) => {
-  const db = getFirestore()
+  const db = getFirestore();
   try {
     const productRef = doc(db, "valute", valuta.id);
     await setDoc(productRef, valuta);
@@ -723,10 +729,20 @@ export const saveTagsToSettingsPostazione = async (tagsString, postId) => {
     });
   }
 };
-export const saveCommissioniToSettingsPostazione = async (commissione, postId,type) => {
+export const saveCommissioniToSettingsPostazione = async (
+  commissione,
+  postId,
+  type
+) => {
   try {
     const db = getFirestore();
-    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "commissioni");
+    const postazioneRef = doc(
+      db,
+      "postazioni",
+      postId,
+      "impostazioni",
+      "commissioni"
+    );
     const docSnapshot = await getDoc(postazioneRef);
     if (docSnapshot.exists()) {
       console.log("exists");
@@ -748,7 +764,13 @@ export const saveProductsToSettingsPostazione = async (prodotti, postId) => {
   try {
     console.log(prodotti, postId);
     const db = getFirestore();
-    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "prodotti");
+    const postazioneRef = doc(
+      db,
+      "postazioni",
+      postId,
+      "impostazioni",
+      "prodotti"
+    );
     const docSnapshot = await getDoc(postazioneRef);
     if (docSnapshot.exists()) {
       console.log("exists");
@@ -769,7 +791,13 @@ export const saveProductsToSettingsPostazione = async (prodotti, postId) => {
 export const getProductsFromSettingsPostazione = async (postId) => {
   try {
     const db = getFirestore();
-    const postazioneRef = doc(db, "postazioni", postId, "impostazioni", "prodotti");
+    const postazioneRef = doc(
+      db,
+      "postazioni",
+      postId,
+      "impostazioni",
+      "prodotti"
+    );
     const docSnapshot = await getDoc(postazioneRef);
     if (docSnapshot.exists()) {
       return docSnapshot.data().prodotti;
