@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { saveAs } from "file-saver";
 import {
   Flex,
   View,
@@ -27,12 +27,11 @@ import FullScreen from "@spectrum-icons/workflow/FullScreen";
 import Data from "@spectrum-icons/workflow/Data";
 import { updateSaleStatus } from "../../Functions/firebaseFunctions";
 import { makeId } from "../../Functions/logicArray";
+import Download from "@spectrum-icons/workflow/Download";
 function DialogInfoVendita(props) {
   const { user, close, vendita } = props;
 
-  useEffect(() => {
-    console.log(vendita);
-  }, [vendita]);
+  useEffect(() => {console.log("Vendita =>",vendita)}, [vendita]);
 
   const formatDate = (data) => {
     const timestamp = new Timestamp(data.seconds, data.nanoseconds);
@@ -49,6 +48,17 @@ function DialogInfoVendita(props) {
     return check;
   };
 
+  const handleDownload = async () => {
+    const urls = vendita.fotoAcquistate;
+    //Far scaricare oltre all'originale anche l'immagine da stampare
+    for (const url of urls) {
+      const response = await fetch(url.data.url);
+      console.log(url);
+      const blob = await response.blob();
+      saveAs(blob, url.product.nome + "-" + url.id + ".jpg");
+    }
+  };
+
   return (
     <Dialog>
       <Heading>Dettaglio della vendita</Heading>
@@ -60,8 +70,14 @@ function DialogInfoVendita(props) {
         <Flex gap={"size-100"} alignItems={"center"}>
           <Text>Report Vendita</Text>
           {checkIsSped(vendita.fotoAcquistate) && (
-            <Badge variant={vendita.statusSpedizione==="Spedito" ? "positive" : "info"}>
-              {vendita.statusSpedizione==="Spedito" ? "Spedito" : "Da Spedire"}
+            <Badge
+              variant={
+                vendita.statusSpedizione === "Spedito" ? "positive" : "info"
+              }
+            >
+              {vendita.statusSpedizione === "Spedito"
+                ? "Spedito"
+                : "Da Spedire"}
             </Badge>
           )}
         </Flex>
@@ -124,6 +140,10 @@ function DialogInfoVendita(props) {
                 </Flex>
               </View>
             ))}
+            <ActionButton onPress={handleDownload}>
+              <Download />
+              Download Foto
+            </ActionButton>
             <Divider size="S" />
             <Flex gap={"size-100"} alignSelf={"end"}>
               <Text>Totale: € {vendita.totale}</Text>
@@ -134,31 +154,32 @@ function DialogInfoVendita(props) {
             <Flex direction="column" gap="size-100">
               <Heading level={4}>Cliente</Heading>
               <Text>Nome: {vendita.cliente.nome}</Text>
-              <Text>Codice Fiscale: {vendita.cliente.codiceFiscale}</Text>
+              <Text>Telefono: {vendita.cliente.telefono}</Text>
               <Text>Email: {vendita.cliente.email}</Text>
-              {checkIsSped(vendita.fotoAcquistate) && vendita.statusSpedizione&&(
-                <Flex direction={"column"} gap="size-100">
-                  <Divider size="S" />
-                  <Text>
-                    Spedizione: {vendita.cliente.datiSpedizione.citta},
-                    {vendita.cliente.datiSpedizione.indirizzo},
-                    {vendita.cliente.datiSpedizione.cap}
-                  </Text>
-                  <Well>
-                    Note di spedizione: {vendita.cliente.datiSpedizione.note}
-                  </Well>
-                  {vendita.cliente.id && (
-                    <Text>ID utente :{vendita.cliente.id}</Text>
-                  )}
-                  <ActionButton
-                    onPress={() => {
-                      updateSaleStatus(vendita.id, "Spedito");
-                    }}
-                  >
-                    Conferma avvenuta spedizione
-                  </ActionButton>
-                </Flex>
-              )}
+              {checkIsSped(vendita.fotoAcquistate) &&
+                vendita.statusSpedizione && (
+                  <Flex direction={"column"} gap="size-100">
+                    <Divider size="S" />
+                    <Text>
+                      Spedizione: {vendita.cliente.datiSpedizione.citta},
+                      {vendita.cliente.datiSpedizione.indirizzo},
+                      {vendita.cliente.datiSpedizione.cap}
+                    </Text>
+                    <Well>
+                      Note di spedizione: {vendita.cliente.datiSpedizione.note}
+                    </Well>
+                    {vendita.cliente.id && (
+                      <Text>ID utente :{vendita.cliente.id}</Text>
+                    )}
+                    <ActionButton
+                      onPress={() => {
+                        updateSaleStatus(vendita.id, "Spedito");
+                      }}
+                    >
+                      Conferma avvenuta spedizione
+                    </ActionButton>
+                  </Flex>
+                )}
             </Flex>
             <Divider size="M" />
             <Flex direction="column" gap="size-100">

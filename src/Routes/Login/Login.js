@@ -18,7 +18,7 @@ import {
 import { useNavigate, redirect } from "react-router-dom";
 import LayoutCentratoAlloSchermo from "../../Layouts/LayoutCentratoAlloSchermo";
 import { ToastQueue } from "@react-spectrum/toast";
-
+import logo from "../../logo.png"
 function Login(props) {
   const navigate = useNavigate();
   const [credenziali, setCredenziali] = useState({
@@ -62,8 +62,8 @@ function Login(props) {
           <View flex={1}>
             <Flex width={"100%"} height={"100%"}>
               <Image
-                src="https://i.imgur.com/Z7AzH2c.png"
-                alt="Sky and roof"
+                src={logo}
+                alt="Logo di Photofloyd"
                 objectFit="cover"
               />
             </Flex>

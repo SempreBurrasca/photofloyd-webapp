@@ -1,30 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 
 import {
-  ActionButton,
   ActionGroup,
-  Button,
   Checkbox,
   Flex,
-  Heading,
   Image,
   Item,
-  Text,
   View,
 } from "@adobe/react-spectrum";
 
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
-import { ToastQueue } from "@react-spectrum/toast";
 import Checkmark from "@spectrum-icons/workflow/Checkmark";
 import Help from "@spectrum-icons/workflow/Help";
 
 import Cancel from "@spectrum-icons/workflow/Cancel";
 import { updatePhotoLabel } from "../../Functions/firebaseFunctions";
 import { getEdits } from "../../Functions/firebaseGetFunctions";
-import ArrowLeft from "@spectrum-icons/workflow/ArrowLeft";
-import ArrowRight from "@spectrum-icons/workflow/ArrowRight";
 
 function CardFoto(props) {
   const {
@@ -89,10 +79,10 @@ function CardFoto(props) {
         key={foto.id}
         borderRadius="medium"
         backgroundColor={
-          selectedFotografie.includes(foto) ? "blue-400" : "static-white"
+          selectedFotografie.includes(foto) ? "blue-400" : "gray-300"
         }
         position={"relative"}
-        width={isSelectedMode?"100px":"250px"}
+        width={isSelectedMode ? "100px" : "250px"}
       >
         <div
           style={{ cursor: "pointer" }}
@@ -115,7 +105,7 @@ function CardFoto(props) {
         </View>
         <Flex direction={"column"}>
           <Flex direction="column" justifyContent={"center"}>
-            <span className="title-card-foto">{foto.data.name}</span>
+            <span className={selectedFotografie.includes(foto)  ? "title-card-foto active" : "title-card-foto"}>{foto.data.name}</span>
 
             {/*
             <span className="fotografo-card-foto">

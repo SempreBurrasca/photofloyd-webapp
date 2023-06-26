@@ -34,17 +34,6 @@ function ContentHeading(props) {
 
   return (
     <Flex gap="size-200" alignItems={"center"} justifyContent="start">
-      {openEditDialog && (
-        <DialogContainer type="fullscreen">
-          <DialogEditFoto
-            close={() => setOpenEditDialog(false)}
-            fotoToEdit={fotoToEdit}
-            db={db}
-            postazioneId={postazioneId}
-            setSelectedFotos={(e) => setFotoToEdit(e)}
-          />
-        </DialogContainer>
-      )}
       <Flex direction="column" gap="size-100">
         {/*<Flex gap="size-100" justifyContent="start">
                   <a>Home{">"} </a>

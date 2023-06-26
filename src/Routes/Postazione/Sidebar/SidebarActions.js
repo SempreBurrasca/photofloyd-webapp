@@ -24,6 +24,7 @@ import FolderUser from "@spectrum-icons/workflow/FolderUser";
 import { StateContext } from "../../../Context/stateContext";
 
 import EditIn from "@spectrum-icons/workflow/EditIn";
+import DialogEditFoto from "../DialogEditFoto";
 
 function SidebarActions(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -38,6 +39,8 @@ function SidebarActions(props) {
     openSellDialog,
     cartFotos,
     setCartFotos,
+    openEditDialog,
+    setOpenEditDialog,
   } = props;
 
   return (
@@ -63,7 +66,7 @@ function SidebarActions(props) {
           if (key === "sellFotos") {
             setOpenSellDialog(true);
           } else if ((key = "editFoto")) {
-            setIsEditMode(true);
+            setOpenEditDialog(true);
           }
         }}
       >
@@ -128,6 +131,15 @@ function SidebarActions(props) {
             setSelectedFotos={(e) => setSelectedFotos(e)}
             cartFotos={cartFotos}
             setCartFotos={setCartFotos}
+          />
+        </DialogContainer>
+      )}
+      {openEditDialog && (
+        <DialogContainer type="fullscreen">
+          <DialogEditFoto
+            close={() => setOpenEditDialog(false)}
+            selectedFotos={selectedFotos}
+            postazioneId={postazioneId}
           />
         </DialogContainer>
       )}

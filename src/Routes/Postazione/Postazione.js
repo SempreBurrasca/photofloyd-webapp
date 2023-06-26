@@ -30,6 +30,7 @@ import { StateContext } from "../../Context/stateContext";
 import SidebarFilter from "./Sidebar/SidebarFilter.js";
 import SidebarActions from "./Sidebar/SidebarActions";
 import ContentHeading from "./Content/ContentHeading";
+import TabellaVendite from "../../Componenti/Tabelle/TabellaVendite";
 
 function Postazione(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -78,6 +79,9 @@ function Postazione(props) {
           setAvailableTags(tags);
         });
       }
+    });
+    getSalesByPostazione(postazioneId).then((e) => {
+      setVendite(e);
     });
   }, []);
 
@@ -128,6 +132,8 @@ function Postazione(props) {
             <SidebarActions
               selectedFotos={selectedFotos}
               setOpenSellDialog={setOpenSellDialog}
+              setOpenEditDialog={setOpenEditDialog}
+              openEditDialog={openEditDialog}
               setIsEditMode={setIsEditMode}
               db={props.db}
               setSelectedFotos={setSelectedFotos}
@@ -194,9 +200,9 @@ function Postazione(props) {
                     postazioneId={postazioneId}
                   />
                 </Item>
-                {/* <Item key="Finanze">
-                  <TabellaVenditePostazione vendite={vendite} />
-                </Item>*/}
+                <Item key="Finanze">
+                  <TabellaVendite vendite={vendite} />
+                </Item>
               </TabPanels>
             </Tabs>
           </Flex>

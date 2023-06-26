@@ -5,7 +5,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { defaultTheme, Provider } from "@adobe/react-spectrum";
+import { darkTheme, Provider } from "@adobe/react-spectrum";
 
 import App from "./App";
 import "./index.css";
@@ -30,7 +30,7 @@ const auth = getAuth(app);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <Provider theme={defaultTheme} colorScheme="light">
+  <Provider theme={darkTheme} >
     <ToastContainer />
     <App db={db} />
   </Provider>

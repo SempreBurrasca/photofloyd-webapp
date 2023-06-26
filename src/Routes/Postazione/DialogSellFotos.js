@@ -150,7 +150,7 @@ function DialogSellFotos(props) {
       totalPrice = totalPrice * currency.cambio;
     }
 
-    return totalPrice.toFixed(2);
+    return Math.ceil(totalPrice.toFixed(2));
   };
   const finalizzaVendita = async (arg) => {
     console.log("finalizzaVendita", arg);

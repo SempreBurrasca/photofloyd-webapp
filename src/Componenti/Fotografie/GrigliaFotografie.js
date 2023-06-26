@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { Flex, View, Well, Image, Heading, Divider } from "@adobe/react-spectrum";
+import {
+  Flex,
+  View,
+  Well,
+  Image,
+  Heading,
+  Divider,
+} from "@adobe/react-spectrum";
 import { collection, onSnapshot } from "firebase/firestore";
 import { ToastQueue } from "@react-spectrum/toast";
 import CardFoto from "./CardFoto";
@@ -7,7 +14,7 @@ import { StateContext } from "../../Context/stateContext";
 import { filterPhotos } from "../../Functions/filterFunctions";
 function GrigliaFotografie(props) {
   const { state, dispatch } = useContext(StateContext);
-  const{ isEditMode,selectedFotos,setSelectedFotos,filteredPhotos} = props
+  const { isEditMode, selectedFotos, setSelectedFotos, filteredPhotos } = props;
   const [fotografie, setFotografie] = useState([]);
   const [visibleFotografie, setVisibleFotografie] = useState([]);
   const observer = useRef(null);
@@ -86,49 +93,6 @@ function GrigliaFotografie(props) {
 
   return (
     <View padding="size-100" overflow="auto" height="55vh">
-      <Flex direction={"column"} margin={15} alignItems={"stretch"} justifyContent={"start"}>
-        <Flex gap={"size-100"}>
-        {selectedFotos.length > 0 && (
-          <Flex direction={"column"} flex={1} gap="size-100">
-            <Heading level={4}>Filtri e Modifica</Heading>
-            <View backgroundColor={"blue-400"} width={"100%"} height={"50px"}></View>
-            <View backgroundColor={"blue-400"} width={"100%"} height={"50px"}></View>
-            <View backgroundColor={"blue-400"} width={"100%"} height={"50px"}></View>
-            <View backgroundColor={"blue-400"} width={"100%"} height={"50px"}></View>
-          </Flex>
-        )}
-        {selectedFotos.length > 0 && (
-          <Flex flex={2} justifyContent={"center"}>
-          <Image
-            src={selectedFotos[0].data.url}
-            alt="dsadasdas"
-            objectFit="contain"
-            width="auto"
-            height="35vh"
-          />
-          </Flex>
-        )}
-        </Flex>
-        {selectedFotos.length > 0 && (
-          <View maxWidth={"100%"} overflow={"auto"} margin={10}>
-            <Flex gap={"size-100"} maxWidth={"100%"}  overflow={"auto"} >
-              {selectedFotos.map((f) => (
-                <View>
-                <Image
-                  src={f.data.url}
-                  alt="dsadasdas"
-                  objectFit="cover"
-                  width="150px"
-                  height="120px"
-            
-                />
-                </View>
-              ))}
-            </Flex>
-          </View>
-        )}
-        <Divider size="M"/>
-      </Flex>
       <Flex
         alignItems="start"
         justifyContent="start"
@@ -151,11 +115,10 @@ function GrigliaFotografie(props) {
           >
             {visibleFotografie.includes(foto.id) && (
               <CardFoto
-                isSelectedMode={selectedFotos.length > 0 ? true : false}
+                isSelectedMode={false}
                 fotoToEdit={props.fotoToEdit}
                 setFotoToEdit={props.setFotoToEdit}
-                setOpenEditDialog={props.setOpenEditDialog}
-                foto={foto}
+             foto={foto}
                 display={
                   filteredPhotos.length > 0
                     ? filteredPhotos.includes(foto.id)

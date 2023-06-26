@@ -95,7 +95,7 @@ function CheckOut(props) {
         clienteID: selectedClient ? selectedClient : false,
         nome: nome,
         stanza: stanza,
-        codiceFiscale: codiceFiscale,
+        telefono: codiceFiscale,
         datiSpedizione: datiSpedizione,
         email: email,
         data: {
@@ -306,7 +306,7 @@ function CheckOut(props) {
                 onChange={setEmail}
               />
               <TextField
-                label="Codice Fiscale"
+                label="Telefono"
                 isRequired
                 width={"100%"}
                 onChange={setCodiceFiscal}

@@ -20,6 +20,9 @@
     font-size: 10px;
     font-weight: bold;
     margin: 5px;
+    &.active{
+        color: black!important;
+    }
 }
 .fotografo-card-foto{
     font-size: 10px;
@@ -65,4 +68,20 @@
         fill: white;
     }
     
+}
+canvas{
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+//overwrite
+.spectrum-ActionButton--emphasized_e2d99e.spectrum-ActionButton--quiet_e2d99e.is-selected_e2d99e, .spectrum-ActionButton--emphasized_e2d99e.is-selected_e2d99e{
+    color: black!important;
+}
+.spectrum-ActionButton--emphasized_e2d99e.spectrum-ActionButton--quiet_e2d99e.is-selected_e2d99e .spectrum-Icon_e2d99e, .spectrum-ActionButton--emphasized_e2d99e.is-selected_e2d99e .spectrum-Icon_e2d99e{
+    color: black!important;
+}
+.spectrum-Button_e2d99e[data-style=fill]{
+    color: black!important;
 }

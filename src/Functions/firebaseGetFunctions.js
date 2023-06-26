@@ -110,13 +110,11 @@ export const getSalesByPostazione = async (postazione) => {
   const postazioneRef = doc(db, "postazioni", postazione);
   const querySnapshot = await getDocs(collection(postazioneRef, "vendite"));
   for (const doc of querySnapshot.docs) {
+
     const saleRef = doc.data().ref;
     const saleDoc = await getDoc(saleRef);
     const saleData = saleDoc.data();
-
-    // Add the sale ID
-    saleData.id = saleDoc.id;
-
+  
     // Retrieve the client data
     const clientRef = saleData.cliente;
     const clientDoc = await getDoc(clientRef);
@@ -125,7 +123,7 @@ export const getSalesByPostazione = async (postazione) => {
     const fotografoRef = saleData.fotografo;
     const fotografoDoc = await getDoc(fotografoRef);
     saleData.fotografo = fotografoDoc.data();
-
+    saleData.id=doc.id
     sales.push(saleData);
   }
   return sales;
