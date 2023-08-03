@@ -24,7 +24,7 @@ import SaveAsFloppy from "@spectrum-icons/workflow/SaveAsFloppy";
 function SingleFormProduct(props) {
   const { prodotti } = props;
   const [prodotto, setProdotto] = React.useState(props.prodotto);
-  React.useEffect(() => {}, [prodotto]);
+  React.useEffect(() => {console.log(prodotto)}, [prodotto]);
   return (
     <Flex
       direction={"column"}
@@ -47,24 +47,26 @@ function SingleFormProduct(props) {
         value={prodotto.descrizione}
         onChange={(e) => setProdotto({ ...prodotto, descrizione: e })}
       />
+       <Divider size="S"/>
+      <Switch
+        isSelected={prodotto.isStampa}
+        flexGrow={0.5}
+        onChange={(e) =>
+          setProdotto({
+            ...prodotto,
+            isStampa: prodotto.isStampa ? false : true,
+          })
+        }
+      >
+        Prodotto di stampa
+      </Switch>
+     
       <Flex
         width={"100%"}
         justifyContent={"start"}
         gap="size-125"
         alignItems={"center"}
       >
-        <Switch
-          isSelected={prodotto.isStampa}
-          flexGrow={0.5}
-          onChange={(e) =>
-            setProdotto({
-              ...prodotto,
-              isStampa: prodotto.isStampa ? false : true,
-            })
-          }
-        >
-          Prodotto di stampa
-        </Switch>
         {prodotto.isStampa && (
           <Flex
             flex={1}
@@ -99,6 +101,14 @@ function SingleFormProduct(props) {
           </Flex>
         )}
       </Flex>
+      {prodotto.isStampa && (
+        <TextField
+          label="URL Demo di Stampa"
+          value={prodotto.demoURL}
+          onChange={(e) => setProdotto({ ...prodotto, demoURL: e })}
+        />
+      )}
+       <Divider size="S"/>
       <Flex
         width={"100%"}
         justifyContent={"start"}
@@ -153,7 +163,7 @@ function SingleFormProduct(props) {
         <SaveAsFloppy />
         Salva Prodotto
       </ActionButton>
-      <Divider size="M" marginTop={"size-150"}/>
+      <Divider size="M" marginTop={"size-150"} />
     </Flex>
   );
 }

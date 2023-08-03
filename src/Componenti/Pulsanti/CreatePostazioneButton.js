@@ -28,6 +28,7 @@ import {
   getTags,
   getTagsPostazioneFromFirebase,
 } from "../../Functions/firebaseGetFunctions";
+import { creaPostazione } from "../../Functions/firebaseFunctions";
 
 function CreatePostazioneButton(props) {
   const navigate = useNavigate();
@@ -57,53 +58,17 @@ function CreatePostazioneButton(props) {
     console.log(newArr.filter(onlyUnique));
   };
   //manca da completare la logica di aggiunta del team
-  const creaPostazione = async (close) => {
-    var idPostazione = newPostazioneName.replaceAll(" ", "-") + "-" + makeId(5);
-    var user = auth.currentUser;
-    console.log(user);
-    await setDoc(doc(db, "postazioni", idPostazione), {
-      name: newPostazioneName,
-      uploadCounter:0,
-      tag: tagSelected,
-    })
-      .then(async (e) => {
-        console.log("Creata la postazione, aggiungo lo staff=>", e);
-        await setDoc(doc(db, "postazioni", idPostazione, "staff", user.uid), {
-          mail: user.email,
-          uid: user.uid,
-          ref: doc(db, "users", user.uid),
-        })
-          .then(async (e) => {
-            console.log("Aggiunto lo staff =>", e);
-            await setDoc(
-              doc(db, "users", user.uid, "postazioni", idPostazione),
-              {
-                name: newPostazioneName,
-                ref: doc(db, "postazioni", idPostazione),
-                tag: tagSelected,
-              }
-            );
-            ToastQueue.positive("Postazione creata con successo", {
-              timeout: 2000,
-            });
-            close()
-          })
-          .catch((e) => {
-            console.log("errore nella creazione dello users=>", e);
-            ToastQueue.negative(
-              "C'è stato un errore con la creazione della postazione, nell'aggiunta dello staff",
-              { timeout: 2000 }
-            );
-          });
-      })
-      .catch((e) => {
-        console.log("errore=>", e);
-        ToastQueue.negative(
-          "C'è stato un errore con la creazione della postazione",
-          { timeout: 2000 }
-        );
-      });
+
+  const callCreaPostazione = async (close) => {
+    const idPostazione = `${newPostazioneName.replaceAll(" ", "-")}-${makeId(5)}`;
+    const user = auth.currentUser;
+  
+    creaPostazione(newPostazioneName,tagSelected,close)
   };
+  
+  
+  
+  
   return (
     <DialogTrigger
       onOpenChange={(e) => {
@@ -168,7 +133,7 @@ function CreatePostazioneButton(props) {
             <Button variant="secondary" onPress={close}>
               Annulla
             </Button>
-            <Button variant="accent" onPress={()=>creaPostazione(close)}>
+            <Button variant="accent" onPress={()=>callCreaPostazione(close)}>
               Crea Postazione
             </Button>
           </ButtonGroup>

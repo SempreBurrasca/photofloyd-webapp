@@ -21,6 +21,54 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
+import { makeId } from "./logicArray";
+
+export const creaPostazione = async (newPostazioneName, tagSelected, close) => {
+  try {
+    const db = getFirestore();
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const idPostazione = `${newPostazioneName.replaceAll(" ", "-")}-${makeId(5)}`;
+
+    // References
+    const postazioniRef = doc(db, "postazioni", idPostazione);
+    const staffRef = doc(postazioniRef, "staff", user.uid);
+    const userPostazioniRef = doc(db, "users", user.uid, "postazioni", idPostazione);
+
+    // Create the "postazioni" document
+    await setDoc(postazioniRef, {
+      name: newPostazioneName,
+      uploadCounter: 0,
+      tag: tagSelected,
+    });
+
+    // Create the "staff" sub-document under the new "postazioni" document
+    await setDoc(staffRef, {
+      mail: user.email,
+      uid: user.uid,
+      ref: doc(db, "users", user.uid),
+    });
+
+    // Add the new "postazione" to the user's "postazioni"
+    await setDoc(userPostazioniRef, {
+      name: newPostazioneName,
+      ref: postazioniRef,
+      tag: tagSelected,
+    });
+
+    ToastQueue.positive("Postazione creata con successo", {
+      timeout: 2000,
+    });
+
+    close();
+  } catch (e) {
+    console.log("Errore nella creazione della postazione", e);
+    ToastQueue.negative(
+      "C'è stato un errore con la creazione della postazione",
+      { timeout: 2000 }
+    );
+  }
+};
 
 export const incrementUploadCounter = async (db, postazioneId) => {
   try {
@@ -342,6 +390,7 @@ export const getProductsFromFirebase = async (db) => {
     querySnapshot.forEach((doc) => {
       products.push({ ...doc.data(), doc: doc.ref });
     });
+    console.log("prodotti=>",products)
     return products;
   } catch (error) {
     ToastQueue.negative("Errore nel recuperare i prodotti:" + error, {
@@ -561,18 +610,26 @@ export const finalizeSale = async (saleData) => {
     const now = Timestamp.now();
     let saleRef;
     let clientRef;
+    
     // Generate a custom ID for the new vendite document
     const postazioneRef = doc(db, "postazioni", postazione);
     const venditeSnapshot = await getDocs(collection(postazioneRef, "vendite"));
     const numeroProgressivo = venditeSnapshot.size + 1;
     const saleId = `${postazione.slice(-5)}-${numeroProgressivo}`;
-
+ 
     if (!cliente.clienteID) {
       // Call the addPhotosToClients function
       await addPhotosToClients(db, postazione, [cliente.nome], fotoAcquistate);
-      // Update the client's documents
+      
+      // Check if the client's document exists and update it or create a new one
       clientRef = doc(db, "clienti", cliente.nome);
-      await updateDoc(clientRef, { ...cliente });
+      const clientSnapshot = await getDoc(clientRef);
+      if (clientSnapshot.exists()) {
+        await updateDoc(clientRef, { ...cliente });
+      } else {
+        await setDoc(clientRef, { ...cliente });
+      }
+
       // Create a new document in the vendite collection with a custom ID
       saleRef = doc(db, "vendite", saleId);
       await setDoc(saleRef, {
@@ -580,15 +637,23 @@ export const finalizeSale = async (saleData) => {
         fotografo: fotografoRef,
         data: now,
         cliente: clientRef,
-        
       });
       await setDoc(doc(clientRef, "vendite", saleRef.id), { ref: saleRef });
+
       ToastQueue.positive("Vendita Effettuata", {
         timeout: 2000,
       });
     } else {
+      // Check if the client's document exists and update it or create a new one
+      clientRef = doc(db, "clienti", cliente.nome);
+      const clientSnapshot = await getDoc(clientRef);
+      if (clientSnapshot.exists()) {
+        await updateDoc(clientRef, { ...cliente });
+      } else {
+        await setDoc(clientRef, { ...cliente });
+      }
+
       // Create a new document in the vendite collection with a custom ID
-      clientRef = doc(db, "clienti", cliente.clienteID);
       saleRef = doc(db, "vendite", saleId);
       await setDoc(saleRef, {
         ...saleData,
@@ -596,9 +661,6 @@ export const finalizeSale = async (saleData) => {
         data: now,
         cliente: clientRef,
       });
-
-      // Update the client's documents
-      await updateDoc(clientRef, { ...cliente });
 
       // Add the sale to the client's vendite subcollection
       await setDoc(doc(clientRef, "vendite", saleRef.id), { ref: saleRef });
@@ -614,6 +676,7 @@ export const finalizeSale = async (saleData) => {
     // Add the client to the postazione's clienti subcollection
     await setDoc(doc(postazioneRef, "clienti", clientRef.id), {
       ref: clientRef,
+      ...cliente
     });
   } catch (error) {
     console.error("Error finalizing sale: ", error);
@@ -622,6 +685,7 @@ export const finalizeSale = async (saleData) => {
     });
   }
 };
+
 export const updateSaleStatus = async (id, status) => {
   try {
     const db = getFirestore();
@@ -808,5 +872,44 @@ export const getProductsFromSettingsPostazione = async (postId) => {
   } catch (error) {
     console.error("Error retrieving products:", error);
     return [];
+  }
+};
+
+export const saveWatermarkedPhotosToFirebase = async (
+  watermarkedImages,
+  nome,
+  descrizione,
+  password
+) => {
+  try {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+
+    // Create new document in 'watermarked' collection
+    const watermarkedRef = doc(db, 'watermarked', nome);
+    batch.set(watermarkedRef, {
+      nome,
+      descrizione,
+      password,
+    });
+
+    watermarkedImages.forEach((image) => {
+      const photoRef = doc(db, 'watermarked', nome, 'fotografie', image.id);
+      batch.set(photoRef, {
+        id: image.id,
+        originalUrl: image.originalUrl,
+        uploadedUrl: image.uploadedUrl,
+      });
+    });
+
+    await batch.commit();
+    ToastQueue.positive("Foto con watermark salvate con successo nel Database", {
+      timeout: 2000,
+    });
+  } catch (error) {
+    console.log(error);
+    ToastQueue.negative("Errore nel salvare le foto con watermark nel Database" + error, {
+      timeout: 2000,
+    });
   }
 };

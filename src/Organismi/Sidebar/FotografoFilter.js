@@ -39,6 +39,7 @@ import { StateContext } from "../../Context/stateContext";
 
 function FotografoFilter(props) {
   const { state, dispatch } = useContext(StateContext);
+  const {reset}=props
   let [selected, setSelected] = React.useState(false);
   let [fotografi, setFotografi] = useState([]);
   useEffect(() => {
@@ -58,8 +59,8 @@ function FotografoFilter(props) {
     }
   }, [selected]);
   useEffect(() => {
-    console.log(fotografi);
-  }, [fotografi]);
+    setSelected(null);
+  }, [reset]);
 
   const getUniquePhotographerNames = (photos) => {
     const photographerNames = photos.map((photo) => photo.data.fotografo.nome);
@@ -88,6 +89,7 @@ function FotografoFilter(props) {
         <ComboBox
           defaultItems={fotografi}
           onSelectionChange={handleSelection}
+          selectedKey={selected}
           width={"100%"}
         >
           {(item) => <Item key={item.name}>{item.name}</Item>}

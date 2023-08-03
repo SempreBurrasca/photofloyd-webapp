@@ -79,10 +79,11 @@ function DialogSellFotos(props) {
     });
   }, []);
 
-  const addToCart = (foto) => {
+  const addToCart = (foto, arg) => {
     props.setCartFotos(
       props.cartFotos.concat({
         ...foto,
+        anteprimaStampa: arg,
       })
     );
   };

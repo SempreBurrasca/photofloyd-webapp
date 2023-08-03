@@ -59,7 +59,7 @@ function HeaderPhotofloyd(props) {
     }
   };
   return (
-    <View backgroundColor="gray-200">
+    <View backgroundColor="gray-200" maxHeight={"20vh"}>
       <Flex minHeight="size-675" gap="size-400" alignItems={"center"}>
         <View
           flex={1}

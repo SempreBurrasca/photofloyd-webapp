@@ -17,7 +17,9 @@ import {
 import PhotofloydCanvas from "../../Organismi/PhotofloydCanvas/PhotofloydCanvas";
 import SelectedFotosCarousel from "../../Organismi/PhotofloydCanvas/SelectedFotosCarousel";
 import Crop from "@spectrum-icons/workflow/Crop";
-
+import c_o from "../../asset/cornici/cornice_oriz.png"
+import c_v from "../../asset/cornici/cornice_vert.png"
+import c_vt from "../../asset/cornici/corniceTest_vert.png"
 function DialogEditFoto(props) {
   const { close, fotoToEdit, db, postazioneId, selectedFotos } = props;
   const [activeFoto, setActiveFoto] = useState(selectedFotos[0]);
@@ -25,7 +27,9 @@ function DialogEditFoto(props) {
   const [filter, setFilter] = useState("");
   const [isSaved, setIsSaved] = useState(false);
   const [cropping, setCropping] = useState(false);
-
+  const [saveNow,setSaveNow]=useState(false)
+  const [isCornice,setIsCornice]=useState(false)
+  const [cornice,setCornice]=useState(false)
   useEffect(() => {}, [activeFoto]);
 
   return (
@@ -35,8 +39,8 @@ function DialogEditFoto(props) {
       <Divider />
       <Content>
         <Flex direction={"column"} gap={"size-125"}>
-          <Flex gap={"size-125"} flex={3}>
-            <View flex={1} height={"60vh"}>
+          <Flex gap={"size-125"} flex={3} >
+            <View flex={1} height={"60vh"} flexShrink={0}>
               <Flex direction={"column"} gap={"size-100"}>
                 {/*Qui andranno i preset e i comandi di editing*/}
                 <Text>Filtri</Text>
@@ -78,11 +82,33 @@ function DialogEditFoto(props) {
                     Crop
                   </ActionButton>
                 )}
+                <ActionButton onPress={()=>{setIsCornice(!isCornice)}}>
+                  Cornici
+                </ActionButton>
+                {
+                  isCornice&&
+                  <View overflow={"auto"} width={"size-2400"} >
+                    <Flex gap={"size-100"}>
+                      {
+                        //mettere bottone no cornice
+                      }
+                      <div className="button-cornice" onClick={()=>setCornice(c_o)}><View flexShrink={0}><Image src={c_o} width={100} height={100} objectFit={"contain"}/></View></div>
+                      <div className="button-cornice" onClick={()=>setCornice(c_v)} ><View flexShrink={0}><Image src={c_v} width={100} height={100} objectFit={"contain"}/></View></div>
+                      <div className="button-cornice" onClick={()=>setCornice(c_o)} ><View flexShrink={0}><Image src={c_o} width={100} height={100} objectFit={"contain"}/></View></div>
+                      <div className="button-cornice" onClick={()=>setCornice(c_vt)}><View flexShrink={0}><Image src={c_v} width={100} height={100} objectFit={"contain"}/></View></div>
+                      <div className="button-cornice" onClick={()=>setCornice(c_o)}><View flexShrink={0}><Image src={c_o} width={100} height={100} objectFit={"contain"}/></View></div>
+                      <div className="button-cornice" onClick={()=>setCornice(c_v)}><View flexShrink={0}><Image src={c_v} width={100} height={100} objectFit={"contain"}/></View></div>
+                    </Flex>
+                  </View>
+                }
                 <ActionButton>
+                  Aggiungi Testo
+                </ActionButton>
+                <ActionButton isDisabled>
                   Watermark
                 </ActionButton>
                 <Divider size="S" />
-                <Button variant="cta">Salva</Button>
+                <Button variant="cta" onPress={()=>setSaveNow(true)}>Salva</Button>
               </Flex>
             </View>
             <Divider size="S" orientation="vertical" />
@@ -97,6 +123,10 @@ function DialogEditFoto(props) {
                 setIsSaved={setIsSaved}
                 cropping={cropping}
                 setCropping={setCropping}
+                saveNow={saveNow}
+                setSaveNow={setSaveNow}
+                cornice={cornice}
+                setCornice={setCornice}
               />
             </View>
           </Flex>

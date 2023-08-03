@@ -14,6 +14,7 @@ function TagsFilter(props) {
     setFilteredPhotos,
     availableTags,
     setAvailableTags,
+    reset,
   } = props;
   const [selectedTags, setSelectedTags] = React.useState([]);
 
@@ -30,6 +31,10 @@ function TagsFilter(props) {
       });
     }
   }, [selectedTags]);
+
+  useEffect(() => {
+    setSelectedTags([]);
+  }, [reset]);
 
   const handleSelection = (e) => {
     let array = selectedTags;
@@ -54,6 +59,7 @@ function TagsFilter(props) {
         items={availableTags}
         aria-label="Tag di filtraggio"
         selectionMode="multiple"
+        selectedKeys={selectedTags}
         isEmphasized
         onAction={(e) => {
           handleSelection(e);

@@ -1,35 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import LayoutConHeader from "../../Layouts/LayoutConHeader";
-import {
-  ActionButton,
-  Button,
-  Checkbox,
-  DateRangePicker,
-  Divider,
-  Flex,
-  Heading,
-  Image,
-  Item,
-  NumberField,
-  Picker,
-  Radio,
-  RadioGroup,
-  Switch,
-  Text,
-  TextField,
-  Tooltip,
-  TooltipTrigger,
-  View,
-  Well,
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { 
+  ActionButton, 
+  Button, 
+  Checkbox, 
+  DateRangePicker, 
+  Divider, 
+  Flex, 
+  Heading, 
+  Image, 
+  Item, 
+  NumberField, 
+  Picker, 
+  Radio, 
+  RadioGroup, 
+  Switch, 
+  Text, 
+  TextField, 
+  Tooltip, 
+  TooltipTrigger, 
+  View, 
+  Well, 
 } from "@adobe/react-spectrum";
+
 import {
   getClienti,
   getValuteDocuments,
 } from "../../Functions/firebaseGetFunctions";
 import { makeId } from "../../Functions/logicArray";
+
+import LayoutConHeader from "../../Layouts/LayoutConHeader";
+import RicercaCliente from "./RicercaCliente";
+
 import Print from "@spectrum-icons/workflow/Print";
 import Mailbox from "@spectrum-icons/workflow/Mailbox";
 import Portrait from "@spectrum-icons/workflow/Portrait";
@@ -39,30 +43,35 @@ import Data from "@spectrum-icons/workflow/Data";
 
 function CheckOut(props) {
   const {
+    checkoutData,
     close,
+    finalizzaVendita,
+    handleDownload,
+    paymentCard,
+    postazioneId,
     selectedFotos,
     setPaymentCard,
     tassazione,
     totalOfProducts,
-    handleDownload,
-    postazioneId,
-    checkoutData,
-    finalizzaVendita,
-    paymentCard,
   } = props;
+  
   const [clienti, setClienti] = useState([]);
-  const [isOldClient, setIsOldClient] = useState(false);
-  const [selectedClient, setSelectedClient] = useState();
-  const [nome, setNome] = useState("");
-  const [stanza, setStanza] = useState("");
-  const [codiceFiscale, setCodiceFiscal] = useState("");
-  const [email, setEmail] = useState("");
-  const [currency, setCurrency] = useState("EUR");
-  const [valute, setValute] = useState([]);
-  const [contantiRicevuti, setContantiRicevuti] = useState();
   const [clientData, setClientData] = useState();
+  const [codiceFiscale, setCodiceFiscal] = useState("");
+  const [contantiRicevuti, setContantiRicevuti] = useState();
+  const [currency, setCurrency] = useState("EUR");
+  const [datiSpedizione, setDatiSpedizione] = useState({
+    citta: "---", cap: "---", indirizzo: "---", note: "---"
+  });
+  const [email, setEmail] = useState("");
+  const [isOldClient, setIsOldClient] = useState(false);
   const [isSped, setIsSped] = useState(false);
-  const [datiSpedizione, setDatiSpedizione] = useState({});
+  const [nome, setNome] = useState("");
+  const [selectedClient, setSelectedClient] = useState();
+  const [sconto, setSconto] = useState(0);
+  const [stanza, setStanza] = useState("");
+  const [valute, setValute] = useState([]);
+
   useEffect(() => {
     getClienti(props.db, postazioneId, setClienti);
     getValuteDocuments().then((d) => {
@@ -71,15 +80,41 @@ function CheckOut(props) {
   }, []);
 
   useEffect(() => {
+    if (selectedClient && selectedClient.length > 0) {
+      const selectedClientName = selectedClient[selectedClient.length - 1];
+      const selectedClientData = clienti.find((client) => client.id === selectedClientName);
+
+      if (selectedClientData && selectedClientData.data) {
+        setNome(selectedClientData.id);
+        setStanza(selectedClientData.data.stanza);
+        setClientData({
+          startDate: new Date(selectedClientData.data.data.start.toDate()),
+          endDate: new Date(selectedClientData.data.data.end.toDate()),
+        });
+        setEmail(selectedClientData.data.email);
+        setCodiceFiscal(selectedClientData.data.telefono);
+
+        if (selectedClientData.data.datiSpedizione) {
+          setDatiSpedizione({
+            citta: selectedClientData.data.datiSpedizione.citta,
+            cap: selectedClientData.data.datiSpedizione.cap,
+            indirizzo: selectedClientData.data.datiSpedizione.indirizzo,
+            note: selectedClientData.data.datiSpedizione.note,
+          });
+        }
+      }
+    }
+    
+  }, [selectedClient]);
+useEffect(()=>{console.log(datiSpedizione)},[datiSpedizione])
+  useEffect(() => {
     props.cartFotos.forEach((f) => {
       if (f.product.isSpedizione) {
         setIsSped(true);
       }
     });
   }, [props.cartFotos]);
-  const handleSelection = (e) => {
-    setSelectedClient(e);
-  };
+
   const checkIsSped = (arr) => {
     let check = false;
     arr.forEach((a) => {
@@ -89,7 +124,9 @@ function CheckOut(props) {
     });
     return check;
   };
+
   const handleCheckout = () => {
+    console.log(datiSpedizione)
     finalizzaVendita({
       cliente: {
         clienteID: selectedClient ? selectedClient : false,
@@ -99,26 +136,24 @@ function CheckOut(props) {
         datiSpedizione: datiSpedizione,
         email: email,
         data: {
-          start: new Date(
-            clientData.start.year,
-            clientData.start.month - 1,
-            clientData.start.day
-          ),
-          end: new Date(
-            clientData.end.year,
-            clientData.end.month - 1,
-            clientData.end.day
-          ),
+          start: new Date(clientData.start.year, clientData.start.month - 1, clientData.start.day),
+          end: new Date(clientData.end.year, clientData.end.month - 1, clientData.end.day),
         },
       },
-      fotoAcquistate: props.cartFotos,
-      totale: totalOfProducts(),
-      postazione: postazioneId,
-      paymentCard: paymentCard,
-      statusSpedizione: checkIsSped(props.cartFotos)
-        ? "Da Spedire"
-        : "No Spedizione",
+      valuta: currency,
+      totaleContantiRicevuti: contantiRicevuti || 0, // utilizza 0 se contantiRicevuti è undefined
+      isSped: isSped,
+      pagamento: paymentCard,
+      totalePagato: (totalOfProducts()-sconto),
+      totaleImponibile: (totalOfProducts()-sconto) - ((totalOfProducts()-sconto) * (tassazione / 100)),
+      totaleTasse: (totalOfProducts()-sconto) * (tassazione / 100),
+      sconto: sconto,
+      checkoutData: checkoutData,
+      fotoAcquistate:props.cartFotos,
+      postazione:postazioneId
     });
+    handleDownload(makeId(20));
+    close();
   };
   return (
     <Flex direction={"column"} gap={"size-125"}>
@@ -143,7 +178,7 @@ function CheckOut(props) {
                     <Flex gap={"size-100"} alignItems={"center"}>
                       <span>{index + 1}</span>
                       <Image
-                        src={foto.data.url}
+                        src={foto.anteprimaStampa?foto.anteprimaStampa:foto.data.url}
                         width="50px"
                         height="50px"
                         objectFit={"cover"}
@@ -229,11 +264,17 @@ function CheckOut(props) {
                 </Picker>
               </Flex>
               <Flex gap={"size-100"} alignItems={"end"} direction={"column"}>
+                <NumberField
+                  isQuiet
+                  label="Sconto"
+                  value={sconto}
+                  onChange={setSconto}
+                />
                 <Flex alignItems={"center"} justifyContent={"start"}>
                   <Heading level={4}>Totale da Pagare: </Heading>
                   <Text>
                     {currency.symbol ? currency.symbol : "EUR"}{" "}
-                    {totalOfProducts(currency)}
+                    {totalOfProducts(currency)-sconto}
                   </Text>
                 </Flex>
                 {paymentCard === 0 && (
@@ -247,7 +288,7 @@ function CheckOut(props) {
                 {paymentCard === 0 && (
                   <span>
                     Resto da dare: {currency.symbol ? currency.symbol : "EUR"}
-                    {(contantiRicevuti - totalOfProducts(currency)).toFixed(2)}
+                    {(contantiRicevuti - (totalOfProducts(currency)-sconto).toFixed(2))}
                   </span>
                 )}
               </Flex>
@@ -260,14 +301,11 @@ function CheckOut(props) {
               Cliente già registrato in una cartella
             </Switch>
             {isOldClient && (
-              <Picker
-                label="Scegli una versione"
-                items={clienti}
-                onSelectionChange={handleSelection}
-                isDisabled={clienti.length > 0 ? false : true}
-              >
-                {(item) => <Item key={item.id}>{item.id}</Item>}
-              </Picker>
+              <RicercaCliente
+                db={props.db}
+                postazioneId={postazioneId}
+                setSelectedClient={setSelectedClient}
+              />
             )}
             {isOldClient && (
               <Text>Aggiorna il cliente con le informazioni corrette</Text>
@@ -287,6 +325,7 @@ function CheckOut(props) {
                   width={"100%"}
                   onChange={setStanza}
                   flex={1}
+                  value={stanza}
                 />
                 <DateRangePicker
                   label="Check in e Check Out"
@@ -304,12 +343,14 @@ function CheckOut(props) {
                 isRequired
                 width={"100%"}
                 onChange={setEmail}
+                value={email}
               />
               <TextField
                 label="Telefono"
                 isRequired
                 width={"100%"}
                 onChange={setCodiceFiscal}
+                value={codiceFiscale}
               />
               {isSped && <Divider size="S" />}
               {isSped && (
@@ -319,6 +360,7 @@ function CheckOut(props) {
                       label="Città"
                       isRequired
                       width={"100%"}
+                      value={datiSpedizione.citta}
                       onChange={(value) =>
                         setDatiSpedizione({ ...datiSpedizione, citta: value })
                       }
@@ -328,6 +370,7 @@ function CheckOut(props) {
                       label="Cap"
                       isRequired
                       width={"100%"}
+                      value={datiSpedizione.cap}
                       onChange={(value) =>
                         setDatiSpedizione({ ...datiSpedizione, cap: value })
                       }
@@ -338,6 +381,7 @@ function CheckOut(props) {
                       flex={4}
                       isRequired
                       width={"100%"}
+                      value={datiSpedizione.indirizzo}
                       onChange={(value) =>
                         setDatiSpedizione({
                           ...datiSpedizione,
@@ -349,6 +393,7 @@ function CheckOut(props) {
                   <TextField
                     label="Note"
                     width={"100%"}
+                    value={datiSpedizione.note}
                     onChange={(value) =>
                       setDatiSpedizione({ ...datiSpedizione, note: value })
                     }
@@ -367,14 +412,7 @@ function CheckOut(props) {
       <Button
         variant="cta"
         onPress={handleCheckout}
-        isDisabled={
-          !nome ||
-          !codiceFiscale ||
-          !clientData ||
-          !stanza ||
-          !email
-         
-        }
+        isDisabled={!nome || !codiceFiscale || !clientData || !stanza || !email}
       >
         Conferma Acquisto
       </Button>

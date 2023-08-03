@@ -87,14 +87,13 @@ function PostazioneImpostazioni(props) {
       }
     });
   }, [commissioni]);
-  useEffect(() => {
-    console.log(selectedCommissione);
-  }, [tags, selectedCommissione]);
+
   const filterObjectsByName = (objects, names) => {
+    console.log(prodotti)
     return objects.filter((object) => names.includes(object.nome));
   };
   return (
-    <View padding={10} paddingBottom={50} maxHeight={"60vh"}>
+    <View padding={10} paddingBottom={50} maxHeight={"60vh"} overflow={"auto"}>
       <Flex
         direction={"column"}
         minHeight="100vh"

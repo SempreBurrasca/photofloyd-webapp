@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  Flex,
-  Heading,
-  DateRangePicker,
-} from "@adobe/react-spectrum";
+import { Flex, Heading, DateRangePicker } from "@adobe/react-spectrum";
 
 import { StateContext } from "../../Context/stateContext";
 
 function DataFilter(props) {
   const { state, dispatch } = useContext(StateContext);
+  const { reset } = props;
 
-  const [date, setDate] = React.useState(false);
+  const [date, setDate] = React.useState(null);
 
   useEffect(() => {
     if (date) {
@@ -25,6 +22,10 @@ function DataFilter(props) {
       });
     }
   }, [date]);
+  useEffect(() => {
+    setDate(null); // reset the date when the reset prop changes
+    console.log(date,"reset")
+  }, [reset]);
 
   const handleSelection = (e) => {
     setDate(e);

@@ -41,34 +41,28 @@ function ClientFilter(props) {
   const { state, dispatch } = useContext(StateContext);
   let [selected, setSelected] = React.useState([]);
   let [clients, setClients] = useState([]);
+  let [selectedClient, setSelectedClient] = useState(null); // aggiungi questo stato
+  const { reset } = props;
+  //recupero i clienti della postazione
   useEffect(() => {
     getClienti(props.db, props.postazioneId, setClients);
   }, []);
-  const setFilteredPhotos = props.setFilteredPhotos;
-  const filterFotos = async (target) => {
-    if (target.length === 0) {
-      setFilteredPhotos([]);
-      await setSelected(target);
-    } else {
-      await getPhotoNamesByClient(props.db, target, props.postazioneId).then(
-        (e) => {
-          setFilteredPhotos(props.filteredPhotos.concat(e));
-        }
-      );
-      await setSelected(target);
-    }
-  };
+  // resetta la selezione del ComboBox
+  useEffect(() => {
+    setSelectedClient(null);
+  }, [reset]);
+  //gestisco il filtro
   const handleSelection = async (e) => {
     if (e) {
-      console.log("CLIENTE=>",e);
-      await getPhotoNamesByClient(props.db, e, props.postazioneId).then(
-        (photos) => {
+      console.log("CLIENTE=>", e);
+      await getPhotoNamesByClient(props.db, e, props.postazioneId)
+        .then((photos) => {
           dispatch({
             type: "SET_FILTER_CLIENT",
             client: photos,
           });
-        }
-      );
+        })
+        .catch((e) => console.log(e));
     } else {
       dispatch({
         type: "SET_FILTER_CLIENT",
@@ -83,8 +77,12 @@ function ClientFilter(props) {
       </Heading>
       {clients && clients.length > 0 && (
         <ComboBox
-          defaultItems={clients}
-          onSelectionChange={handleSelection}
+          items={clients}
+          selectedKey={selectedClient} // usa selectedClient come selectedKey
+          onSelectionChange={(key) => {
+            setSelectedClient(key);
+            handleSelection(key);
+          }} // aggiorna selectedClient quando cambia la selezione
           width={"100%"}
         >
           {(item) => <Item key={item.id}>{item.id}</Item>}

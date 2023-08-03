@@ -31,7 +31,9 @@ import Download from "@spectrum-icons/workflow/Download";
 function DialogInfoVendita(props) {
   const { user, close, vendita } = props;
 
-  useEffect(() => {console.log("Vendita =>",vendita)}, [vendita]);
+  useEffect(() => {
+    console.log("Vendita =>", vendita);
+  }, [vendita]);
 
   const formatDate = (data) => {
     const timestamp = new Timestamp(data.seconds, data.nanoseconds);
@@ -50,6 +52,7 @@ function DialogInfoVendita(props) {
 
   const handleDownload = async () => {
     const urls = vendita.fotoAcquistate;
+    console.log(urls, vendita);
     //Far scaricare oltre all'originale anche l'immagine da stampare
     for (const url of urls) {
       const response = await fetch(url.data.url);
@@ -59,6 +62,14 @@ function DialogInfoVendita(props) {
     }
   };
 
+  const handleAnteprima = (base64Data, fileName) => {
+    const linkSource = base64Data;
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = linkSource;
+    downloadLink.download = fileName;
+    downloadLink.click();
+  };
   return (
     <Dialog>
       <Heading>Dettaglio della vendita</Heading>
@@ -111,19 +122,7 @@ function DialogInfoVendita(props) {
                           <Tooltip>File Digitale</Tooltip>
                         </TooltipTrigger>
                       )}
-                      {ordine.product.isStampa &&
-                      ordine.product.orientation &&
-                      ordine.product.orientation === "horizontal" ? (
-                        <TooltipTrigger delay={0}>
-                          <Landscape size="S" />
-                          <Tooltip>Formato Orizzontale</Tooltip>
-                        </TooltipTrigger>
-                      ) : (
-                        <TooltipTrigger delay={0}>
-                          <Portrait size="S" />
-                          <Tooltip>Formato Verticale</Tooltip>
-                        </TooltipTrigger>
-                      )}
+
                       {ordine.product.isStampa && ordine.product.fillCanvas && (
                         <TooltipTrigger>
                           <FullScreen size="S" />
@@ -134,6 +133,19 @@ function DialogInfoVendita(props) {
                         <TooltipTrigger>
                           <Mailbox size="S" />
                         </TooltipTrigger>
+                      )}
+                      {ordine.anteprimaStampa && (
+                        <ActionButton
+                          isQuiet
+                          onPress={() => {
+                            handleAnteprima(
+                              ordine.anteprimaStampa,
+                              "guidaStampa-" + ordine.id
+                            );
+                          }}
+                        >
+                          Scarica Guida Stampa
+                        </ActionButton>
                       )}
                     </Flex>
                   </Flex>
@@ -156,8 +168,7 @@ function DialogInfoVendita(props) {
               <Text>Nome: {vendita.cliente.nome}</Text>
               <Text>Telefono: {vendita.cliente.telefono}</Text>
               <Text>Email: {vendita.cliente.email}</Text>
-              {checkIsSped(vendita.fotoAcquistate) &&
-                vendita.statusSpedizione && (
+              {vendita.cliente.datiSpedizione && (
                   <Flex direction={"column"} gap="size-100">
                     <Divider size="S" />
                     <Text>
@@ -171,13 +182,13 @@ function DialogInfoVendita(props) {
                     {vendita.cliente.id && (
                       <Text>ID utente :{vendita.cliente.id}</Text>
                     )}
-                    <ActionButton
+                    {<ActionButton
                       onPress={() => {
                         updateSaleStatus(vendita.id, "Spedito");
                       }}
                     >
                       Conferma avvenuta spedizione
-                    </ActionButton>
+                    </ActionButton>}
                   </Flex>
                 )}
             </Flex>

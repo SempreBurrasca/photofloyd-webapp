@@ -8,6 +8,7 @@ import {
   ButtonGroup,
   ComboBox,
   Content,
+  DatePicker,
   DateRangePicker,
   Dialog,
   Divider,
@@ -33,34 +34,93 @@ function DialogAddToClient(props) {
   const [clientData, setClientData] = useState({});
   const [clientMail, setClientMail] = useState("");
   const [clientCF, setClientCF] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [roomNumber, setRoomNumber] = useState("");
+  const [searchDateRange, setSearchDateRange] = useState(null);
+
   useEffect(() => {
     getClienti(props.db, props.postazioneId, setClients);
   }, []);
+  useEffect(() => {
+    console.log(clients);
+  }, [clients]);
+  useEffect(() => {
+    console.log("DATA =>",searchDateRange);
+  }, [searchDateRange]);
   const handleSelection = (e) => {
     setSelectedClients([e]);
   };
+
+  const filteredClients = clients.filter((client) => {
+
+    const clientStartDate = client.data.data?client.data.data.start.toDate():null
+    const clientEndDate =  client.data.data?client.data.data.end.toDate():null
+console.log(client,clientStartDate,clientEndDate,searchDateRange)
+    if (
+      searchText !== "" &&
+      !client.id.toLowerCase().includes(searchText.toLowerCase())
+    ) {
+      return false;
+    }
+
+    if (roomNumber !== "" && client.data.stanza !== roomNumber) {
+      return false;
+    }
+
+    if (searchDateRange) {
+      const searchDate = new Date(searchDateRange.year, searchDateRange.month - 1, searchDateRange.day);
+      if (searchDate < clientStartDate || searchDate > clientEndDate) {
+        return false;
+      }
+    }
+
+    return true;
+});
+
   return (
     <Dialog>
       <Heading>Collega foto a un cliente</Heading>
       <Header>Connection status: Connected</Header>
       <Divider />
       <Content>
-        <Text>
-          Aggiungi {selectedFotos.length} fotografie a un cliente, puoi
-          selezionarne di già esistenti o crearne una nuovo.
-        </Text>
-        <Switch isSelected={exist} onChange={setExist}>
-          Il cliente già è stato salvato nella postazione
-        </Switch>
+        <Flex direction={"column"}>
+          <Text>
+            Aggiungi {selectedFotos.length} fotografie a un cliente, puoi
+            selezionarne di già esistenti o crearne una nuovo.
+          </Text>
+          <Switch isSelected={exist} onChange={setExist}>
+            Il cliente già è stato salvato nella postazione
+          </Switch>
+        </Flex>
         <br />
         {exist ? (
-          <ComboBox
-            defaultItems={clients}
-            onSelectionChange={handleSelection}
-            width={"100%"}
-          >
-            {(item) => <Item key={item.id}>{item.id}</Item>}
-          </ComboBox>
+          <Flex direction={"column"}>
+            {/*Aggiungere la logica di ricerca del cliente per numero di stanza e data di check in check out*/}
+            <ComboBox
+              defaultItems={filteredClients}
+              onSelectionChange={handleSelection}
+              width={"100%"}
+            >
+              {(item) => <Item key={item.id}>{item.id}</Item>}
+            </ComboBox>
+
+            <TextField
+              label="Numero Stanza"
+              value={roomNumber}
+              onChange={setRoomNumber}
+              isRequired
+            />
+            <DatePicker
+              label="Cerca per data"
+              value={searchDateRange}
+              onChange={setSearchDateRange}
+            />
+            {/* <DateRangePicker
+              label="Cerca per data"
+              value={searchDateRange}
+              onChange={setSearchDateRange}
+        />*/}
+          </Flex>
         ) : (
           <Flex direction={"column"}>
             <Text>
@@ -124,7 +184,15 @@ function DialogAddToClient(props) {
         </Button>
         <Button
           variant="accent"
-          isDisabled={exist ? !selectedClients : (!clientName||!clientData||!clientMail||!clientStanza||!clientCF)}
+          isDisabled={
+            exist
+              ? !selectedClients
+              : !clientName ||
+                !clientData ||
+                !clientMail ||
+                !clientStanza ||
+                !clientCF
+          }
           onPress={() => {
             addPhotosToClients(
               props.db,

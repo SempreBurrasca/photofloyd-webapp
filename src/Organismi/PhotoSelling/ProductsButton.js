@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-
-  ActionGroup,
-  Item,
-  Text,
-  View,
-
-} from "@adobe/react-spectrum";
+import { ActionGroup, Item, Text, View } from "@adobe/react-spectrum";
 
 function ProductsButton(props) {
   const { activeFoto, setActiveFoto, setProductIsSelected } = props;

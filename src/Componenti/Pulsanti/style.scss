@@ -1,3 +1,9 @@
+button{
+    cursor: pointer!important;
+    &span{
+        cursor: pointer!important;
+    }
+}
 .tag-button{
     color: black;
     padding: 5px;
@@ -84,4 +90,7 @@ canvas{
 }
 .spectrum-Button_e2d99e[data-style=fill]{
     color: black!important;
+}
+.button-cornice{
+    cursor: pointer;
 }

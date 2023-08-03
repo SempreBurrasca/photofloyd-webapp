@@ -62,7 +62,7 @@ function TabellaVenditePostazione(props) {
                 <Cell align="start">{vendita.id}</Cell>
                 <Cell align="start">{vendita.cliente.name}</Cell>
                 <Cell align="start">{vendita.fotografo.displayName}</Cell>
-                <Cell align="start">€{vendita.totale}</Cell>
+                <Cell align="start">€{vendita.totale||vendita.totalePagato}</Cell>
                 <Cell>
                   <DialogTrigger>
                     <ActionButton>

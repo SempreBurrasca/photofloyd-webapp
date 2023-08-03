@@ -49,6 +49,8 @@ function Postazione(props) {
   const [vendite, setVendite] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [reset, setReset] = useState(false);
+
+  //recupero i dati
   React.useEffect(() => {
     setSelectedFotos([]);
     setCartFotos([]);
@@ -84,16 +86,14 @@ function Postazione(props) {
       setVendite(e);
     });
   }, []);
-
+//apre il dialog di vendita
   useEffect(() => {
     getSalesByPostazione(postazioneId).then((vendite) => {
       setVendite(vendite);
     });
   }, [openSellDialog]);
 
-  useEffect(() => {
-    console.log(state);
-  }, [state]);
+
 
   const resetFilter = () => {
     dispatch({
@@ -126,8 +126,9 @@ function Postazione(props) {
         columns={["1.5fr", "0.03fr", "8fr"]}
         gap="size-100"
         margin={10}
+        maxHeight={"80vh"}
       >
-        <View gridArea="sidebar" overflow={"hidden"}>
+        <View gridArea="sidebar" overflow={"auto"} padding={10}>
           <Flex direction="column" gap="size-200">
             <SidebarActions
               selectedFotos={selectedFotos}
@@ -157,7 +158,7 @@ function Postazione(props) {
 
         <Divider orientation="vertical" size="M" />
 
-        <View gridArea="content" overflow={"auto"}>
+        <View gridArea="content" >
           <Flex direction="column" gap="size-200" justifyContent={"center"}>
             <ContentHeading
               openEditDialog={openEditDialog}

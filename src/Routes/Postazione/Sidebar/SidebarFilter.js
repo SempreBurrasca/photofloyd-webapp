@@ -24,7 +24,7 @@ function SidebarFilter(props) {
     availableTags,
     setAvailableTags,
   } = props;
-
+  const [reset, setReset] = useState(0);
   const resetFilter = () => {
     dispatch({
       type: "SET_FILTER_TAGS",
@@ -56,9 +56,10 @@ function SidebarFilter(props) {
         postazioneId={postazioneId}
         filteredPhotos={filteredPhotos}
         setFilteredPhotos={setFilteredPhotos}
+        reset={reset}
       />
-      <FotografoFilter db={db} postazioneId={postazioneId} />
-      <DataFilter />
+      <FotografoFilter db={db} postazioneId={postazioneId}    reset={reset}/>
+      <DataFilter    reset={reset}/>
       <TagsFilter
         db={db}
         postazioneId={postazioneId}
@@ -66,18 +67,20 @@ function SidebarFilter(props) {
         setFilteredPhotos={setFilteredPhotos}
         availableTags={availableTags}
         setAvailableTags={setAvailableTags}
+        reset={reset}
       />
       <LabelFilter
         db={db}
         postazioneId={postazioneId}
         filteredPhotos={filteredPhotos}
         setFilteredPhotos={setFilteredPhotos}
+        reset={reset}
       />
-      <Divider size="S"/>
+      <Divider size="S" />
       <ActionButton
         onPress={() => {
           resetFilter();
-          console.log("reset");
+          setReset(reset + 1);
         }}
       >
         Resetta filtri

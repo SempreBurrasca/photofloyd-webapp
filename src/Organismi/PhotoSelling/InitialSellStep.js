@@ -57,26 +57,11 @@ function InitialSellStep(props) {
     addToCart,
   } = props;
   const [stampaPreview, setStampaPreview] = useState(false);
+  const [urlView, setUrlView] = useState(activeFoto.data.url);
+  const [canvasImageUrl, setCanvasImageUrl] = useState(null);
 
-  useEffect(() => {
-  }, [activeFoto]);
 
-  const formatEditSelected = () => {
-    return {
-      data: {
-        url: editSelected.url,
-        name: editSelected.name,
-        label: activeFoto.data.label,
-        fotografo: {
-          uid: activeFoto.data.fotografo.uid,
-          nome: activeFoto.data.fotografo.nome,
-        },
-        tags: activeFoto.data.tags,
-      },
-      id: editSelected.id,
-      product: activeFoto.product,
-    };
-  };
+
   return (
     <Flex direction={"column"} gap={"size-125"}>
       <Flex justifyContent={"space-evenly"} gap={"size-150"}>
@@ -93,7 +78,25 @@ function InitialSellStep(props) {
             isSelectedEdit={isSelectedEdit}
           />
         </Flex>
-        <Flex direction={"column"} gap={"size-115"} flex={5} alignItems={"stretch"}>
+        <Flex
+          direction={"column"}
+          gap={"size-115"}
+          flex={5}
+          alignItems={"stretch"}
+        >
+          {activeFoto.data.modificate && (
+            <Flex direction={"column"} gap={"size-100"}>
+              <Text>
+                {activeFoto.data.modificate.length} versioni disponibili
+              </Text>
+              <ActionGroup onAction={setUrlView}  density="compact" isEmphasized>
+                <Item key={activeFoto.data.url}>Originale</Item>
+                {activeFoto.data.modificate.map((af, index) => (
+                  <Item key={af}>V-{index + 1}</Item>
+                ))}
+              </ActionGroup>
+            </Flex>
+          )}
           <Fotografia
             key={activeFoto.id}
             foto={activeFoto}
@@ -105,10 +108,13 @@ function InitialSellStep(props) {
             isSelectedEdit={isSelectedEdit}
             setEditSelected={setEditSelected}
             editSelected={editSelected}
+            urlView={urlView}
+            setCanvasImageUrl={setCanvasImageUrl}
           />
+
           <ActionButton
             isDisabled={!productIsSelected}
-            onPress={() => addToCart(activeFoto)}
+            onPress={() => addToCart(activeFoto,canvasImageUrl)}
           >
             <ShoppingCart />
             Aggiungi al carrello

@@ -102,7 +102,7 @@ function TabellaVendite(props) {
     let totale = 0;
     filteredVendite.forEach((v) => {
       console.log(v.totale);
-      totale += parseFloat(v.totale);
+      totale += parseFloat(v.totale||v.totalePagato);
     });
     return totale.toFixed(2);
   };
@@ -183,7 +183,7 @@ function TabellaVendite(props) {
                 <Cell align="start">{vendita.postazione}</Cell>
                 <Cell align="start">{vendita.cliente.name}</Cell>
                 <Cell align="start">{vendita.fotografo.displayName}</Cell>
-                <Cell align="start">€{vendita.totale}</Cell>
+                <Cell align="start">€{vendita.totale||vendita.totalePagato}</Cell>
                 <Cell align="center">
                   {checkIsSped(vendita.fotoAcquistate) ? (
                     <Badge

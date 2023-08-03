@@ -62,3 +62,32 @@ export const saveEditedPhoto = async (
   }
 };
 
+export const updatePhotoURL = async (postazioneId, activeFotoId, newURL) => {
+  try {
+    const db = getFirestore();
+
+    // Create a reference to the foto document
+    const fotoRef = doc(
+      db,
+      "postazioni",
+      postazioneId,
+      "fotografie",
+      activeFotoId
+    );
+
+    // Update the url array field
+    await updateDoc(fotoRef, {
+      modificate: arrayUnion("https://www.photofloyd.cloud/app/"+newURL),
+    });
+
+    console.log("Photo URL updated successfully");
+    ToastQueue.positive("URL della foto aggiornato con successo", {
+      timeout: 1000,
+    });
+  } catch (error) {
+    console.error("Error updating photo URL:", error);
+    ToastQueue.negative("Errore nell'aggiornare l'URL della foto", {
+      timeout: 1000,
+    });
+  }
+};

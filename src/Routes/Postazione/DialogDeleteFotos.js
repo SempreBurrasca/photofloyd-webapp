@@ -63,13 +63,12 @@ function DialogDeleteFotos(props) {
 
   return (
     <Dialog>
-      <Heading>Aggiungi foto alla cartella</Heading>
+      <Heading>Elimina foto</Heading>
       <Header>Connection status: Connected</Header>
       <Divider />
       <Content>
         <Text>
-          Aggiungi fotografie a una cartella, puoi
-          selezionarne di già esistenti o crearne una nuova.
+          Stai per eliminare le foto selezionate ({selectedFotos.length} foto selezionate), questa è un'azione irreversibile.
         </Text>
        
       </Content>

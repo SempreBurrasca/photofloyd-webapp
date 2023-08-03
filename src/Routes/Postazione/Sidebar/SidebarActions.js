@@ -25,6 +25,7 @@ import { StateContext } from "../../../Context/stateContext";
 
 import EditIn from "@spectrum-icons/workflow/EditIn";
 import DialogEditFoto from "../DialogEditFoto";
+import DialogEditFotoFR from "../DialogEditFotoFR";
 
 function SidebarActions(props) {
   const { state, dispatch } = useContext(StateContext);
@@ -46,13 +47,12 @@ function SidebarActions(props) {
   return (
     <Flex direction="column" gap="size-100">
       {selectedFotos.length > 0 ? (
-        <Well>
-          <Text>
+        <Text >
+ 
             {selectedFotos.length} foto selezionate.
             <br />
             Utilizza i tasti qui sotto per compiere operazioni su queste foto.
-          </Text>
-        </Well>
+        </Text>
       ) : (
         <Text>Seleziona una o più foto per operare azioni multiple.</Text>
       )}
@@ -65,8 +65,12 @@ function SidebarActions(props) {
         onAction={(key) => {
           if (key === "sellFotos") {
             setOpenSellDialog(true);
-          } else if ((key = "editFoto")) {
+            console.log("sellFotos")
+          } else if ((key === "editFoto")) {
             setOpenEditDialog(true);
+            console.log("editFoto")
+          }else if(key==="deleteFoto"){
+            
           }
         }}
       >
@@ -103,9 +107,11 @@ function SidebarActions(props) {
         <Item key="sellFotos">
           <Shop />
         </Item>
+        
         <Item key="editFoto">
           <EditIn />
         </Item>
+
         <DialogTrigger>
           <Item key="deleteFotos">
             <Delete />
@@ -134,9 +140,10 @@ function SidebarActions(props) {
           />
         </DialogContainer>
       )}
+
       {openEditDialog && (
         <DialogContainer type="fullscreen">
-          <DialogEditFoto
+          <DialogEditFotoFR
             close={() => setOpenEditDialog(false)}
             selectedFotos={selectedFotos}
             postazioneId={postazioneId}

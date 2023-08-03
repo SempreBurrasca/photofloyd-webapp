@@ -24,7 +24,9 @@ function LabelFilter(props) {
       });
     }
   }, [selected]);
-
+  useEffect(() => {
+    setSelected([]);
+  }, [reset]);
 
   const handleSelection = (e) => {
     let array = selected;
@@ -49,6 +51,7 @@ function LabelFilter(props) {
         isEmphasized
         selectionMode="multiple"
         onAction={handleSelection}
+        selectedKeys={selected}
       >
         <Item key="Check" aria-label="Check">
           <Checkmark color="positive" />
